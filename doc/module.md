@@ -3,7 +3,7 @@
 
 ## Life cycle
 
-``` flow
+```flow
 add=>start: onAttch
 remove=>condition: onRemove
 destroy=>end: onDestroy
