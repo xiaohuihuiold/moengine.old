@@ -4,12 +4,12 @@
 ## Life cycle
 
 ```flow
-add=>start: onAttch
+attach=>start: onAttch
 remove=>condition: onRemove
 destroy=>end: onDestroy
 
 nop=>operation: NOP
 
-add->remove(yes)->destroy
+attach->remove(yes)->destroy
 remove(no)->nop
 ```

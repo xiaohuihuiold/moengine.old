@@ -1,16 +1,18 @@
+import 'package:meta/meta.dart';
 import 'package:moengine/moengine.dart';
 
 /// 引擎模块基础类
 /// 负责给引擎提供可自定义的功能
 abstract class EngineModule {
   /// 模块所属引擎实例
-  Moengine _moengine; // ignore: unused_field
+  @protected
+  Moengine moengine; // ignore: unused_field
 
   /// 模块被附加到引擎时调用
   ///
   /// [moengine] 是当前模块所属引擎实例
   void onAttach(Moengine moengine) {
-    _moengine = moengine;
+    this.moengine = moengine;
   }
 
   /// 模块将要被移除时调用
@@ -19,6 +21,6 @@ abstract class EngineModule {
   /// 默认返回true
   bool onRemove() => true;
 
-  /// 当模块已经被移除后
+  /// 当模块被移除或者引擎被销毁时调用
   void onDestroy();
 }
