@@ -13,8 +13,14 @@ class Moengine {
   Moengine({
     List<EngineModule> modules,
   }) {
+    // 根据现有模块实例化管理器并执行附加操作
     moduleManager = ModuleManager._fromModules(modules);
-    moduleManager.onAttach(this);
+    moduleManager._onAttach(this);
+  }
+
+  /// 当引擎被销毁时调用
+  void _onDestroy() {
+    moduleManager._onDestroy();
   }
 }
 
@@ -22,9 +28,12 @@ class Moengine {
 ///
 /// 无论如何都是被第一个加载的模块
 /// 可以管理引擎模块的添加移除生命周期
-class ModuleManager extends EngineModule {
+class ModuleManager {
   /// 模块集合
   Map<Type, EngineModule> _modules;
+
+  /// 模块管理器持有的引擎对象
+  Moengine _moengine;
 
   ModuleManager._internal();
 
@@ -72,18 +81,61 @@ class ModuleManager extends EngineModule {
     return moduleManager;
   }
 
-  @override
-  void onAttach(Moengine moengine) {
-    super.onAttach(moengine);
-    _modules.forEach((_, EngineModule module) => module?.onAttach(moengine));
+  /// 用于给所有模块附加上引擎对象
+  void _onAttach(Moengine moengine) {
+    _moengine = moengine;
+    _modules.forEach((_, EngineModule module) => module?.onAttach(_moengine));
   }
 
-  /// 不可移除
-  @override
-  bool onRemove() => false;
-
-  @override
-  void onDestroy() {
+  /// 用于销毁所有模块
+  void _onDestroy() {
     _modules.forEach((_, EngineModule module) => module?.onDestroy());
+    _modules.clear();
+  }
+
+  /// 添加模块
+  /// [module] 添加一个模块
+  bool addModule(EngineModule module) {
+    if (module == null || _isEngineModule(module)) {
+      return false;
+    }
+    // 当已经有同类型的模块时需要先移除
+    assert(_modules[module.runtimeType] == null, 'Need to be removed first');
+    _modules[module.runtimeType] = module;
+    // 新添加的模块执行附加动作
+    module.onAttach(_moengine);
+    return true;
+  }
+
+  /// 移除一个模块
+  /// [module] 移除的模块
+  bool removeModule(Type type) {
+    if (type == null) {
+      return false;
+    }
+    if (_modules[type] == null) {
+      return true;
+    }
+    EngineModule module = _modules[type];
+    // 检查模块是否可以被移除
+    if (!module.onRemove()) {
+      return false;
+    }
+    // 执行销毁动作
+    module.onDestroy();
+    _modules.remove(type);
+    return true;
+  }
+
+  /// 获取一个模块
+  T getModule<T>() {
+    return _modules[T] as T;
+  }
+
+  /// 检查是否是引擎模块
+  bool _isEngineModule(EngineModule module) {
+    return module is RendererModule ||
+        module is AudioModule ||
+        module is ResourceModule;
   }
 }
