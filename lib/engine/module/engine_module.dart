@@ -11,6 +11,7 @@ abstract class EngineModule {
   /// 模块被附加到引擎时调用
   ///
   /// [moengine] 是当前模块所属引擎实例
+  @mustCallSuper
   void onAttach(Moengine moengine) {
     this.moengine = moengine;
   }
@@ -22,5 +23,5 @@ abstract class EngineModule {
   bool onRemove() => true;
 
   /// 当模块被移除或者引擎被销毁时调用
-  void onDestroy();
+  void onDestroy() {}
 }
