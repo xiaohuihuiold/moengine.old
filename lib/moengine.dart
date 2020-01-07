@@ -14,7 +14,7 @@ class Moengine {
     List<EngineModule> modules,
   }) {
     // 根据现有模块实例化管理器并执行附加操作
-    moduleManager = ModuleManager._fromModules(modules);
+    moduleManager = ModuleManager._internal(modules);
     moduleManager._onAttach(this);
   }
 
@@ -35,50 +35,51 @@ class ModuleManager {
   /// 模块管理器持有的引擎对象
   Moengine _moengine;
 
-  ModuleManager._internal();
-
-  /// 通过模块列表创建模块
-  factory ModuleManager._fromModules(List<EngineModule> modules) {
-    ModuleManager moduleManager = ModuleManager._internal();
-    moduleManager._modules = Map();
+  ModuleManager._internal([List<EngineModule> modules]) {
+    _modules = Map();
 
     // 检查重复模块
-    Map<Type, int> modulesCount = Map();
+    Map<Type, int> moduleCount = Map();
     modules?.forEach((EngineModule module) {
+      if (module == null) {
+        return;
+      }
       if (module is RendererModule) {
-        modulesCount[RendererModule] ??= 0;
-        modulesCount[RendererModule]++;
+        moduleCount[RendererModule] ??= 0;
+        moduleCount[RendererModule]++;
       } else if (module is AudioModule) {
-        modulesCount[AudioModule] ??= 0;
-        modulesCount[AudioModule]++;
+        moduleCount[AudioModule] ??= 0;
+        moduleCount[AudioModule]++;
       } else if (module is ResourceModule) {
-        modulesCount[ResourceModule] ??= 0;
-        modulesCount[ResourceModule]++;
+        moduleCount[ResourceModule] ??= 0;
+        moduleCount[ResourceModule]++;
       } else {
-        modulesCount[module.runtimeType] ??= 0;
-        modulesCount[module.runtimeType]++;
+        moduleCount[module.runtimeType] ??= 0;
+        moduleCount[module.runtimeType]++;
       }
     });
     // 当count大于1的数量超过0时代表有重复模块
     int repeatModuleCount =
-        modulesCount.values.where((int count) => count > 1).length;
+        moduleCount.values.where((int count) => count > 1).length;
     assert(repeatModuleCount == 0, 'repeatModuleCount > 0');
 
     // 模块装载
     modules?.forEach((EngineModule module) {
+      if (module == null) {
+        return;
+      }
       // 引擎需要的特殊模块虽然可以自定义
       // 但是查找时的类型必须是特殊模块基类
       if (module is RendererModule) {
-        moduleManager._modules[RendererModule] = module;
+        _modules[RendererModule] = module;
       } else if (module is AudioModule) {
-        moduleManager._modules[AudioModule] = module;
+        _modules[AudioModule] = module;
       } else if (module is ResourceModule) {
-        moduleManager._modules[ResourceModule] = module;
+        _modules[ResourceModule] = module;
       } else {
-        moduleManager._modules[module.runtimeType] = module;
+        _modules[module.runtimeType] = module;
       }
     });
-    return moduleManager;
   }
 
   /// 用于给所有模块附加上引擎对象
@@ -113,10 +114,10 @@ class ModuleManager {
     if (type == null) {
       return false;
     }
-    if (_modules[type] == null) {
+    EngineModule module = _modules[type];
+    if (module == null) {
       return true;
     }
-    EngineModule module = _modules[type];
     // 检查模块是否可以被移除
     if (!module.onRemove()) {
       return false;
@@ -130,6 +131,11 @@ class ModuleManager {
   /// 获取一个模块
   T getModule<T>() {
     return _modules[T] as T;
+  }
+
+  /// 获取所有模块
+  Iterable<EngineModule> getAllModule() {
+    return _modules.values;
   }
 
   /// 检查是否是引擎模块
