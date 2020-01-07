@@ -1,5 +1,7 @@
 # Engine Structure
 
+![engine_structure](mermaid/engine_structure.svg)
+
 ```mermaid
 graph TD
 
