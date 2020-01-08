@@ -1,5 +1,6 @@
 library moengine;
 
+import 'package:flutter/widgets.dart';
 import 'package:moengine/engine/module/audio_module.dart';
 import 'package:moengine/engine/module/engine_module.dart';
 import 'package:moengine/engine/module/renderer_module.dart';
@@ -16,6 +17,11 @@ class Moengine {
     // 根据现有模块实例化管理器并执行附加操作
     moduleManager = ModuleManager._internal(modules);
     moduleManager._onAttach(this);
+  }
+
+  /// 构建游戏视图
+  Widget buildGameView() {
+    return moduleManager?.getModule<RendererModule>()?.build();
   }
 
   /// 当引擎被销毁时调用

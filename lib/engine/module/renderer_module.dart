@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:moengine/engine/module/engine_module.dart';
 
 /// 渲染器模块基础类
@@ -7,4 +8,7 @@ abstract class RendererModule extends EngineModule {
   /// 渲染模块不可移除
   @override
   bool onRemove() => false;
+
+  /// 渲染游戏画面
+  Widget build();
 }

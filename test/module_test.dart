@@ -1,3 +1,4 @@
+import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:moengine/engine/module/engine_module.dart';
 import 'package:moengine/engine/module/renderer_module.dart';
@@ -17,9 +18,19 @@ void main() {
   });
 }
 
-class TestRendererModule extends RendererModule {}
+class TestRendererModule extends RendererModule {
+  @override
+  Widget build() {
+    return null;
+  }
+}
 
-class TestARendererModule extends RendererModule {}
+class TestARendererModule extends RendererModule {
+  @override
+  Widget build() {
+    return null;
+  }
+}
 
 class TestModule extends EngineModule {}
 

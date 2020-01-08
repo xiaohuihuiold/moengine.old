@@ -9,6 +9,10 @@ abstract class EngineModule {
   @protected
   Moengine moengine; // ignore: unused_field
 
+  /// 获取模块管理器
+  @protected
+  ModuleManager get moduleManager => moengine?.moduleManager;
+
   /// 模块被附加到引擎时调用
   ///
   /// [moengine] 是当前模块所属引擎实例
@@ -22,6 +26,15 @@ abstract class EngineModule {
   /// 返回值决定了当前模块在此时是否能够被移除
   /// 默认返回true
   bool onRemove() => true;
+
+  /// 获取模块
+  T getModule<T>() {
+    ModuleManager moduleManager = moengine?.moduleManager;
+    if (moduleManager == null) {
+      return null;
+    }
+    return moduleManager.getModule<T>();
+  }
 
   /// 当模块被移除或者引擎被销毁时调用
   void onDestroy() {}

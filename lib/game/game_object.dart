@@ -60,6 +60,14 @@ abstract class GameObject {
     return true;
   }
 
+  /// 移除所有组件
+  void removeAllComponent() {
+    _components?.forEach((_, GameComponent component) {
+      component?.gameObject = null;
+    });
+    _components?.clear();
+  }
+
   /// 获取组件
   T getComponent<T>() {
     return _components[T] as T;
