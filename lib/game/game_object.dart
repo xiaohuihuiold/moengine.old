@@ -3,7 +3,7 @@ import 'package:moengine/game/component/game_component.dart';
 /// 游戏对象
 ///
 /// 展示在画面上除ui之外的所有物体的基础类
-abstract class GameObject {
+class GameObject {
   /// 游戏对象所含组件
   Map<Type, GameComponent> _components;
 

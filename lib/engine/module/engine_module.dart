@@ -29,11 +29,7 @@ abstract class EngineModule {
 
   /// 获取模块
   T getModule<T>() {
-    ModuleManager moduleManager = moengine?.moduleManager;
-    if (moduleManager == null) {
-      return null;
-    }
-    return moduleManager.getModule<T>();
+    return moengine?.moduleManager?.getModule<T>();
   }
 
   /// 当模块被移除或者引擎被销毁时调用

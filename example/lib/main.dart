@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:moengine/engine/module/renderer_module.dart';
 import 'package:moengine/moengine.dart';
 
 void main() => runApp(MyApp());
@@ -22,7 +23,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final Moengine _moengine = Moengine(modules: []);
+  final Moengine _moengine = Moengine();
 
   @override
   void initState() {
@@ -32,7 +33,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _moengine.buildGameView(),
+      body: _moengine.renderGameView(),
     );
   }
 }

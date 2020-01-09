@@ -20,14 +20,14 @@ void main() {
 
 class TestRendererModule extends RendererModule {
   @override
-  Widget build() {
+  Widget render() {
     return null;
   }
 }
 
 class TestARendererModule extends RendererModule {
   @override
-  Widget build() {
+  Widget render() {
     return null;
   }
 }

@@ -20,8 +20,13 @@ class Moengine {
   }
 
   /// 构建游戏视图
-  Widget buildGameView() {
-    return moduleManager?.getModule<RendererModule>()?.build();
+  Widget renderGameView() {
+    return moduleManager?.getModule<RendererModule>()?.render();
+  }
+
+  /// 获取模块
+  T getModule<T>() {
+    return moduleManager?.getModule<T>();
   }
 
   /// 当引擎被销毁时调用
@@ -86,6 +91,9 @@ class ModuleManager {
         _modules[module.runtimeType] = module;
       }
     });
+
+    // 设置默认模块
+    _modules[RendererModule] ??= CanvasRendererModule();
   }
 
   /// 用于给所有模块附加上引擎对象
