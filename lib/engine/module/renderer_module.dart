@@ -1,17 +1,26 @@
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:moengine/engine/module/engine_module.dart';
+import 'package:moengine/engine/module/scene_module.dart';
 
 /// 渲染器模块基础类
 ///
 /// 负责渲染游戏对象使用
 abstract class RendererModule extends EngineModule {
+  /// 管理场景操作的模块
+  @protected
+  SceneModule get sceneModule => getModule<SceneModule>();
+
   /// 渲染模块不可移除
   @override
   bool onRemove() => false;
 
   /// 渲染游戏画面
-  Widget render();
+  @mustCallSuper
+  Widget render() {
+    sceneModule?.renderScene?.onUpdate();
+    return null;
+  }
 }
 
 /// Canvas方式的渲染器
@@ -21,6 +30,7 @@ abstract class RendererModule extends EngineModule {
 class CanvasRendererModule extends RendererModule {
   @override
   Widget render() {
+    super.render();
     return _CanvasRenderWidget();
   }
 }

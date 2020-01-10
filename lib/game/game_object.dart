@@ -5,10 +5,17 @@ import 'package:moengine/game/component/game_component.dart';
 /// 展示在画面上除ui之外的所有物体的基础类
 class GameObject {
   /// 游戏对象所含组件
-  Map<Type, GameComponent> _components;
+  Map<Type, GameComponent> _components = Map();
+
+  Map<Type, GameComponent> get components => _components;
+
+  set components(Map<Type, GameComponent> component) =>
+      _components = component ?? Map();
+
+  /// 获取所有组件
+  Iterable<GameComponent> get allComponent => components.values;
 
   GameObject([List<GameComponent> components]) {
-    _components = Map();
     // 检查重复组件
     Map<Type, int> componentCount = Map();
     components?.forEach((GameComponent component) {
@@ -29,7 +36,7 @@ class GameObject {
         return;
       }
       component.gameObject = this;
-      _components[component.runtimeType] = component;
+      this.components[component.runtimeType] = component;
     });
   }
 
@@ -40,8 +47,8 @@ class GameObject {
     }
     // 当已经有同类型的组件时需要先移除
     assert(
-        _components[component.runtimeType] == null, 'Need to be removed first');
-    _components[component.runtimeType] = component;
+        components[component.runtimeType] == null, 'Need to be removed first');
+    components[component.runtimeType] = component;
     component.gameObject = this;
     return true;
   }
@@ -51,30 +58,25 @@ class GameObject {
     if (type == null) {
       return false;
     }
-    GameComponent component = _components[type];
+    GameComponent component = components[type];
     if (component == null) {
       return true;
     }
     component.gameObject = null;
-    _components.remove(type);
+    components.remove(type);
     return true;
   }
 
   /// 移除所有组件
   void removeAllComponent() {
-    _components?.forEach((_, GameComponent component) {
+    components.forEach((_, GameComponent component) {
       component?.gameObject = null;
     });
-    _components?.clear();
+    components.clear();
   }
 
   /// 获取组件
   T getComponent<T>() {
-    return _components[T] as T;
-  }
-
-  /// 获取所有组件
-  Iterable<GameComponent> getAllComponent() {
-    return _components.values;
+    return components[T] as T;
   }
 }

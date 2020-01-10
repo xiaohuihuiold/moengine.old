@@ -32,6 +32,12 @@ abstract class EngineModule {
     return moengine?.moduleManager?.getModule<T>();
   }
 
+  /// 游戏被暂停/移入后台
+  void onPause() {}
+
+  /// 游戏恢复
+  void onResume() {}
+
   /// 当模块被移除或者引擎被销毁时调用
   void onDestroy() {}
 }

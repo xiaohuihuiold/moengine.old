@@ -5,6 +5,7 @@ import 'package:moengine/engine/module/audio_module.dart';
 import 'package:moengine/engine/module/engine_module.dart';
 import 'package:moengine/engine/module/renderer_module.dart';
 import 'package:moengine/engine/module/resource_module.dart';
+import 'package:moengine/engine/module/scene_module.dart';
 
 /// Moengine引擎
 class Moengine {
@@ -21,12 +22,22 @@ class Moengine {
 
   /// 构建游戏视图
   Widget renderGameView() {
-    return moduleManager?.getModule<RendererModule>()?.render();
+    return getModule<RendererModule>()?.render();
   }
 
   /// 获取模块
   T getModule<T>() {
     return moduleManager?.getModule<T>();
+  }
+
+  /// 游戏进入后台
+  void _onPause() {
+    moduleManager._onPause();
+  }
+
+  /// 游戏从后台恢复
+  void _onResume() {
+    moduleManager._onResume();
   }
 
   /// 当引擎被销毁时调用
@@ -40,11 +51,17 @@ class Moengine {
 /// 无论如何都是被第一个加载的模块
 /// 可以管理引擎模块的添加移除生命周期
 class ModuleManager {
+  /// 模块管理器持有的引擎对象
+  Moengine _moengine;
+
   /// 模块集合
   Map<Type, EngineModule> _modules;
 
-  /// 模块管理器持有的引擎对象
-  Moengine _moengine;
+  /// 获取所有模块
+  Iterable<EngineModule> get allModule => _modules.values;
+
+  /// 模块数量
+  int get moduleLength => _modules.length;
 
   ModuleManager._internal([List<EngineModule> modules]) {
     _modules = Map();
@@ -64,6 +81,9 @@ class ModuleManager {
       } else if (module is ResourceModule) {
         moduleCount[ResourceModule] ??= 0;
         moduleCount[ResourceModule]++;
+      } else if (module is SceneModule) {
+        moduleCount[SceneModule] ??= 0;
+        moduleCount[SceneModule]++;
       } else {
         moduleCount[module.runtimeType] ??= 0;
         moduleCount[module.runtimeType]++;
@@ -87,6 +107,8 @@ class ModuleManager {
         _modules[AudioModule] = module;
       } else if (module is ResourceModule) {
         _modules[ResourceModule] = module;
+      } else if (module is SceneModule) {
+        _modules[SceneModule] = module;
       } else {
         _modules[module.runtimeType] = module;
       }
@@ -94,12 +116,23 @@ class ModuleManager {
 
     // 设置默认模块
     _modules[RendererModule] ??= CanvasRendererModule();
+    _modules[SceneModule] ??= SceneModule();
   }
 
   /// 用于给所有模块附加上引擎对象
   void _onAttach(Moengine moengine) {
     _moengine = moengine;
     _modules.forEach((_, EngineModule module) => module?.onAttach(_moengine));
+  }
+
+  /// 暂停所有模块
+  void _onPause() {
+    _modules.forEach((_, EngineModule module) => module?.onPause());
+  }
+
+  /// 恢复所有模块
+  void _onResume() {
+    _modules.forEach((_, EngineModule module) => module?.onResume());
   }
 
   /// 用于销毁所有模块
@@ -136,9 +169,9 @@ class ModuleManager {
     if (!module.onRemove()) {
       return false;
     }
+    _modules.remove(type);
     // 执行销毁动作
     module.onDestroy();
-    _modules.remove(type);
     return true;
   }
 
@@ -147,15 +180,69 @@ class ModuleManager {
     return _modules[T] as T;
   }
 
-  /// 获取所有模块
-  Iterable<EngineModule> getAllModule() {
-    return _modules.values;
-  }
-
   /// 检查是否是引擎模块
   bool _isEngineModule(EngineModule module) {
     return module is RendererModule ||
         module is AudioModule ||
-        module is ResourceModule;
+        module is ResourceModule ||
+        module is SceneModule;
+  }
+}
+
+/// 引擎渲染视图
+class MoengineView extends StatefulWidget {
+  /// 引擎对象
+  final Moengine moengine;
+
+  const MoengineView({
+    Key key,
+    @required this.moengine,
+  }) : super(key: key);
+
+  @override
+  _MoengineViewState createState() => _MoengineViewState();
+}
+
+class _MoengineViewState extends State<MoengineView>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+
+    /// 添加观察者
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    /// 引擎销毁
+    widget.moengine?._onDestroy();
+
+    /// 移除观察者
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    /// 绑定app生命周期
+    switch (state) {
+      case AppLifecycleState.resumed:
+        widget.moengine?._onResume();
+        break;
+      case AppLifecycleState.inactive:
+        widget.moengine?._onPause();
+        break;
+      case AppLifecycleState.paused:
+        widget.moengine?._onPause();
+        break;
+      case AppLifecycleState.suspending:
+        break;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.moengine?.renderGameView();
   }
 }

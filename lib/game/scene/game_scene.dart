@@ -1,6 +1,8 @@
 import 'package:meta/meta.dart';
 import 'package:flutter/widgets.dart';
+import 'package:moengine/engine/module/scene_module.dart';
 import 'package:moengine/game/game_object.dart';
+import 'package:moengine/moengine.dart';
 
 /// 基础的游戏场景
 ///
@@ -18,15 +20,30 @@ abstract class GameScene {
   @protected
   List<Widget> gameUi;
 
-  /// 场景被创建
-  ///
-  /// 当场景被实例化时
-  void onCreate() {}
+  /// 引擎对象
+  @protected
+  Moengine moengine;
+
+  /// 模块管理器
+  @protected
+  ModuleManager get moduleManager => moengine?.moduleManager;
+
+  /// 场景模块
+  @protected
+  SceneModule get sceneModule => moduleManager?.getModule<SceneModule>();
+
+  GameScene() {
+    gameObjects = List();
+    gameUi = List();
+  }
 
   /// 场景被加入到游戏中
   ///
   /// 实例化之后加入到游戏里面,但是还没有展示出来
-  void onAttach() {}
+  @mustCallSuper
+  void onAttach(Moengine moengine) {
+    this.moengine = moengine;
+  }
 
   /// 游戏画面的更新
   void onUpdate();
