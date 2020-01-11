@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:meta/meta.dart';
 import 'package:moengine/moengine.dart';
 
@@ -32,6 +34,9 @@ abstract class EngineModule {
     return moengine?.moduleManager?.getModule<T>();
   }
 
+  /// 游戏绘制区域大小改变
+  void onResize(Size size) {}
+
   /// 游戏被暂停/移入后台
   void onPause() {}
 
@@ -39,5 +44,6 @@ abstract class EngineModule {
   void onResume() {}
 
   /// 当模块被移除或者引擎被销毁时调用
+  @mustCallSuper
   void onDestroy() {}
 }

@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 import 'package:flutter/widgets.dart';
+import 'package:moengine/engine/module/renderer_module.dart';
 import 'package:moengine/engine/module/scene_module.dart';
 import 'package:moengine/game/game_object.dart';
 import 'package:moengine/moengine.dart';
@@ -13,12 +14,14 @@ abstract class GameScene {
   String name;
 
   /// 当前场景游戏对象
-  @protected
   List<GameObject> gameObjects;
 
   /// 当前场景ui
-  @protected
-  List<Widget> gameUi;
+  List<Widget> _gameUi = List();
+
+  List<Widget> get gameUi => _gameUi;
+
+  set gameUi(List<Widget> value) => _gameUi = value ?? List();
 
   /// 引擎对象
   @protected
@@ -32,6 +35,11 @@ abstract class GameScene {
   @protected
   SceneModule get sceneModule => moduleManager?.getModule<SceneModule>();
 
+  /// 渲染模块
+  @protected
+  RendererModule get rendererModule =>
+      moduleManager?.getModule<RendererModule>();
+
   GameScene() {
     gameObjects = List();
     gameUi = List();
@@ -43,7 +51,35 @@ abstract class GameScene {
   @mustCallSuper
   void onAttach(Moengine moengine) {
     this.moengine = moengine;
+    gameUi.clear();
   }
+
+  /// 添加ui
+  void addUI(Widget widget) {
+    if (widget == null) {
+      return;
+    }
+    gameUi.add(widget);
+    rendererModule?.update();
+  }
+
+  /// 移除ui
+  void removeUI(Widget widget) {
+    gameUi.remove(widget);
+    rendererModule?.update();
+  }
+
+  /// 移除ui
+  void removeUIAt(int index) {
+    if (index < 0 || index > gameUi.length - 1) {
+      return;
+    }
+    gameUi.removeAt(index);
+    rendererModule?.update();
+  }
+
+  /// 游戏绘制区域大小改变
+  void onResize(Size size) {}
 
   /// 游戏画面的更新
   void onUpdate();
@@ -61,5 +97,8 @@ abstract class GameScene {
   /// 场景被销毁
   ///
   /// 从游戏中关闭场景或者移除场景时触发
-  void onDestroy() {}
+  @mustCallSuper
+  void onDestroy() {
+    gameUi.clear();
+  }
 }

@@ -7,13 +7,28 @@ import 'package:moengine/engine/module/scene_module.dart';
 ///
 /// 负责渲染游戏对象使用
 abstract class RendererModule extends EngineModule {
+  /// widget刷新函数
+  Function(VoidCallback callback) setState;
+
   /// 管理场景操作的模块
   @protected
   SceneModule get sceneModule => getModule<SceneModule>();
 
+  /// 更新画面s
+  void update() {
+    if (setState != null) {
+      setState(() {});
+    }
+  }
+
   /// 渲染模块不可移除
   @override
   bool onRemove() => false;
+
+  @override
+  void onResize(Size size) {
+    sceneModule?.renderScene?.onResize(size);
+  }
 
   /// 渲染游戏画面
   @mustCallSuper
@@ -31,7 +46,9 @@ class CanvasRendererModule extends RendererModule {
   @override
   Widget render() {
     super.render();
-    return _CanvasRenderWidget();
+    return _CanvasRenderWidget(
+      gameUi: sceneModule?.renderScene?.gameUi,
+    );
   }
 }
 
@@ -40,7 +57,7 @@ class _CanvasRenderWidget extends MultiChildRenderObjectWidget {
   _CanvasRenderWidget({
     Key key,
     List<Widget> gameUi = const <Widget>[],
-  }) : super(key: key, children: gameUi);
+  }) : super(key: key, children: gameUi ?? []);
 
   @override
   _RenderCanvas createRenderObject(BuildContext context) {

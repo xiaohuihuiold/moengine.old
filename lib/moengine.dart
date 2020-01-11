@@ -27,7 +27,12 @@ class Moengine {
 
   /// 获取模块
   T getModule<T>() {
-    return moduleManager?.getModule<T>();
+    return moduleManager.getModule<T>();
+  }
+
+  /// 绘制区域大小变化
+  void _onResize(Size size) {
+    moduleManager._onResize(size);
   }
 
   /// 游戏进入后台
@@ -125,6 +130,11 @@ class ModuleManager {
     _modules.forEach((_, EngineModule module) => module?.onAttach(_moengine));
   }
 
+  /// 绘制区域大小变化
+  void _onResize(Size size) {
+    _modules.forEach((_, EngineModule module) => module?.onResize(size));
+  }
+
   /// 暂停所有模块
   void _onPause() {
     _modules.forEach((_, EngineModule module) => module?.onPause());
@@ -205,27 +215,34 @@ class MoengineView extends StatefulWidget {
 
 class _MoengineViewState extends State<MoengineView>
     with WidgetsBindingObserver {
+  Size _widgetSize;
+
   @override
   void initState() {
     super.initState();
 
-    /// 添加观察者
+    // 添加观察者
     WidgetsBinding.instance.addObserver(this);
+
+    // 更新状态
+    widget.moengine?.getModule<RendererModule>()?.setState = setState;
   }
 
   @override
   void dispose() {
-    /// 引擎销毁
+    widget.moengine?.getModule<RendererModule>()?.setState = null;
+
+    // 引擎销毁
     widget.moengine?._onDestroy();
 
-    /// 移除观察者
+    // 移除观察者
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    /// 绑定app生命周期
+    // 绑定app生命周期
     switch (state) {
       case AppLifecycleState.resumed:
         widget.moengine?._onResume();
@@ -236,13 +253,29 @@ class _MoengineViewState extends State<MoengineView>
       case AppLifecycleState.paused:
         widget.moengine?._onPause();
         break;
-      case AppLifecycleState.suspending:
+      default:
         break;
+    }
+  }
+
+  /// 当一帧绘制完成后
+  void _onUpdated(Duration timeStamp) {
+    Moengine moengine = widget.moengine;
+    RenderBox renderBox = context.findRenderObject();
+
+    // 检测大小是否改变
+    Size renderSize = renderBox.size;
+    if (_widgetSize != renderSize) {
+      _widgetSize = renderSize;
+      moengine?._onResize(_widgetSize);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return widget.moengine?.renderGameView();
+    Moengine moengine = widget.moengine;
+    // 添加帧回调
+    WidgetsBinding.instance.addPostFrameCallback(_onUpdated);
+    return moengine?.renderGameView();
   }
 }

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:moengine/engine/module/scene_module.dart';
+import 'package:moengine/game/scene/game_scene.dart';
 import 'package:moengine/moengine.dart';
 
 void main() => runApp(MyApp());
@@ -24,9 +26,13 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final Moengine _moengine = Moengine();
 
+  SceneModule _sceneModule;
+
   @override
   void initState() {
     super.initState();
+    _sceneModule = _moengine.getModule<SceneModule>();
+    _sceneModule.loadScene(TestGameScene());
   }
 
   @override
@@ -36,5 +42,41 @@ class _HomePageState extends State<HomePage> {
         moengine: _moengine,
       ),
     );
+  }
+}
+
+class TestGameScene extends GameScene {
+  int count = 0;
+
+  @override
+  void onAttach(Moengine moengine) {
+    super.onAttach(moengine);
+    addUI(
+      StatefulBuilder(
+        builder: (context, setState) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Text('Hello Game:$count'),
+                RaisedButton(
+                  child: const Text('ADD'),
+                  onPressed: () {
+                    count++;
+                    setState(() {});
+                  },
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  @override
+  void onUpdate() {
+    print('onUpdated');
   }
 }

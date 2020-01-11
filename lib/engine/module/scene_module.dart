@@ -1,4 +1,6 @@
+import 'package:meta/meta.dart';
 import 'package:moengine/engine/module/engine_module.dart';
+import 'package:moengine/engine/module/renderer_module.dart';
 import 'package:moengine/game/scene/game_scene.dart';
 
 /// 场景模块
@@ -7,6 +9,11 @@ import 'package:moengine/game/scene/game_scene.dart';
 class SceneModule extends EngineModule {
   /// 场景列表
   List<GameScene> _scenes;
+
+  /// 渲染模块
+  @protected
+  RendererModule get rendererModule =>
+      moduleManager?.getModule<RendererModule>();
 
   /// 需要渲染的场景
   GameScene get renderScene {
@@ -46,10 +53,12 @@ class SceneModule extends EngineModule {
       _scenes.add(tempScene);
       // 恢复场景
       tempScene.onResume();
+      rendererModule?.update();
       return true;
     }
     _scenes.add(scene);
     scene.onAttach(moengine);
+    rendererModule?.update();
     return true;
   }
 
@@ -61,6 +70,7 @@ class SceneModule extends EngineModule {
     GameScene scene = _scenes[sceneLength - 1];
     _scenes.removeLast();
     scene?.onDestroy();
+    rendererModule?.update();
     return true;
   }
 
@@ -71,6 +81,7 @@ class SceneModule extends EngineModule {
     }
     _scenes.remove(scene);
     scene.onDestroy();
+    rendererModule?.update();
     return true;
   }
 
@@ -101,6 +112,7 @@ class SceneModule extends EngineModule {
   /// 销毁并移除所有场景
   @override
   void onDestroy() {
+    super.onDestroy();
     List<GameScene> scenes =
         List<GameScene>.generate(_scenes.length, (int index) => _scenes[index]);
     _scenes.clear();
