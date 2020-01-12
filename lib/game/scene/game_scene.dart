@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:meta/meta.dart';
 import 'package:flutter/widgets.dart';
 import 'package:moengine/engine/module/renderer_module.dart';
@@ -71,4 +72,100 @@ abstract class GameScene {
   /// 从游戏中关闭场景或者移除场景时触发
   @mustCallSuper
   void onDestroy() {}
+}
+
+mixin MouseDetector {
+  void onEnter(PointerEnterEvent event);
+
+  void onHover(PointerHoverEvent event);
+
+  void onExit(PointerExitEvent event);
+}
+
+mixin TapDetector {
+  void onTapDown(TapDownDetails details);
+
+  void onTapUp(TapUpDetails details);
+
+  void onTap();
+
+  void onTapCancel();
+}
+
+mixin SecondaryTapDetector {
+  void onSecondaryTapDown(TapDownDetails details);
+
+  void onSecondaryTapUp(TapUpDetails details);
+
+  void onSecondaryTapCancel();
+}
+
+mixin DoubleTapDetector {
+  void onDoubleTap();
+}
+
+mixin LongPressDetector {
+  void onLongPress();
+
+  void onLongPressStart(LongPressStartDetails details);
+
+  void onLongPressMoveUpdate(LongPressMoveUpdateDetails details);
+
+  void onLongPressUp();
+
+  void onLongPressEnd(LongPressEndDetails details);
+}
+
+mixin VerticalDragDetector {
+  void onVerticalDragDown(DragDownDetails details);
+
+  void onVerticalDragStart(DragStartDetails details);
+
+  void onVerticalDragUpdate(DragUpdateDetails details);
+
+  void onVerticalDragEnd(DragEndDetails details);
+
+  void onVerticalDragCancel();
+}
+
+mixin HorizontalDragDetector {
+  void onHorizontalDragDown(DragDownDetails details);
+
+  void onHorizontalDragStart(DragStartDetails details);
+
+  void onHorizontalDragUpdate(DragUpdateDetails details);
+
+  void onHorizontalDragEnd(DragEndDetails details);
+
+  void onHorizontalDragCancel();
+}
+
+mixin ForcePressDetector {
+  void onForcePressStart(ForcePressDetails details);
+
+  void onForcePressPeak(ForcePressDetails details);
+
+  void onForcePressUpdate(ForcePressDetails details);
+
+  void onForcePressEnd(ForcePressDetails details);
+}
+
+mixin PanDetector {
+  void onPanDown(DragDownDetails details);
+
+  void onPanStart(DragStartDetails details);
+
+  void onPanUpdate(DragUpdateDetails details);
+
+  void onPanEnd(DragEndDetails details);
+
+  void onPanCancel();
+}
+
+mixin ScaleDetector {
+  void onScaleStart(ScaleStartDetails de);
+
+  void onScaleUpdate(ScaleUpdateDetails details);
+
+  void onScaleEnd(ScaleEndDetails details);
 }

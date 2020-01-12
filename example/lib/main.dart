@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:moengine/engine/module/scene_module.dart';
 import 'package:moengine/game/scene/game_scene.dart';
@@ -47,7 +45,7 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class TestGameScene extends GameScene {
+class TestGameScene extends GameScene with PanDetector{
   int count = 0;
 
   @override
@@ -64,9 +62,9 @@ class TestGameScene extends GameScene {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Text('Hello Game:$count'),
-            RaisedButton(
+            GestureDetector(
               child: const Text('ADD'),
-              onPressed: () {
+              onTap: () {
                 count++;
                 rendererModule?.updateState();
               },
@@ -80,5 +78,31 @@ class TestGameScene extends GameScene {
   @override
   void onUpdate() {
     print('onUpdated');
+  }
+
+  @override
+  void onPanCancel() {
+    // TODO: implement onPanCancel
+  }
+
+  @override
+  void onPanDown(DragDownDetails details) {
+    // TODO: implement onPanDown
+  }
+
+  @override
+  void onPanEnd(DragEndDetails details) {
+    // TODO: implement onPanEnd
+  }
+
+  @override
+  void onPanStart(DragStartDetails details) {
+    // TODO: implement onPanStart
+  }
+
+  @override
+  void onPanUpdate(DragUpdateDetails details) {
+    // TODO: implement onPanUpdate
+    print(details.globalPosition);
   }
 }
