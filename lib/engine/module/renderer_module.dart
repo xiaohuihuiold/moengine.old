@@ -8,7 +8,9 @@ import 'package:moengine/engine/module/scene_module.dart';
 /// 负责渲染游戏对象使用
 abstract class RendererModule extends EngineModule {
   /// widget刷新函数
-  Function(VoidCallback callback) setState;
+  ///
+  /// 需要在子类中定义刷新方法
+  Function() markNeedsPaint;
 
   /// 管理场景操作的模块
   @protected
@@ -16,8 +18,8 @@ abstract class RendererModule extends EngineModule {
 
   /// 更新画面s
   void update() {
-    if (setState != null) {
-      setState(() {});
+    if (markNeedsPaint != null) {
+      markNeedsPaint();
     }
   }
 
@@ -32,10 +34,7 @@ abstract class RendererModule extends EngineModule {
 
   /// 渲染游戏画面
   @mustCallSuper
-  Widget render() {
-    sceneModule?.renderScene?.onUpdate();
-    return null;
-  }
+  Widget render();
 }
 
 /// Canvas方式的渲染器
@@ -45,28 +44,41 @@ abstract class RendererModule extends EngineModule {
 class CanvasRendererModule extends RendererModule {
   @override
   Widget render() {
-    super.render();
     return _CanvasRenderWidget(
-      gameUi: sceneModule?.renderScene?.gameUi,
+      gameUi: sceneModule?.renderScene?.onBuildUi(),
+      sceneModule: sceneModule,
+      rendererModule: this,
     );
   }
 }
 
 /// Canvas渲染部件
 class _CanvasRenderWidget extends MultiChildRenderObjectWidget {
+  final RendererModule rendererModule;
+  final SceneModule sceneModule;
+
   _CanvasRenderWidget({
     Key key,
+    this.rendererModule,
+    this.sceneModule,
     List<Widget> gameUi = const <Widget>[],
   }) : super(key: key, children: gameUi ?? []);
 
   @override
   _RenderCanvas createRenderObject(BuildContext context) {
-    return _RenderCanvas();
+    return _RenderCanvas(
+      rendererModule: rendererModule,
+      sceneModule: sceneModule,
+    );
   }
 
   @override
   void updateRenderObject(
-      BuildContext context, covariant _RenderCanvas renderObject) {}
+      BuildContext context, covariant _RenderCanvas renderObject) {
+    renderObject
+      ..rendererModule = rendererModule
+      ..sceneModule = sceneModule;
+  }
 }
 
 /// 自定义ParentData
@@ -77,6 +89,19 @@ class _RenderCanvas extends RenderBox
     with
         ContainerRenderObjectMixin<RenderBox, _CanvasParentData>,
         RenderBoxContainerDefaultsMixin<RenderBox, _CanvasParentData> {
+  /// 场景模块,负责渲染回调
+  SceneModule sceneModule;
+
+  /// 将markNeedsPaint交给渲染模块
+  set rendererModule(RendererModule rendererModule) {
+    rendererModule?.markNeedsPaint = markNeedsPaint;
+  }
+
+  _RenderCanvas({
+    rendererModule,
+    this.sceneModule,
+  });
+
   @override
   void setupParentData(RenderObject child) {
     if (child.parentData is! _CanvasParentData) {
@@ -97,8 +122,8 @@ class _RenderCanvas extends RenderBox
 
   @override
   void paint(PaintingContext context, Offset offset) {
+    sceneModule?.renderScene?.onUpdate();
     Canvas canvas = context.canvas;
-
     if (childCount != 0) {
       defaultPaint(context, offset);
     }

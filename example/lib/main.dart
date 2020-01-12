@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:moengine/engine/module/scene_module.dart';
 import 'package:moengine/game/scene/game_scene.dart';
@@ -51,7 +53,11 @@ class TestGameScene extends GameScene {
   @override
   void onAttach(Moengine moengine) {
     super.onAttach(moengine);
-    addUI(
+  }
+
+  @override
+  List<Widget> onBuildUi() {
+    return [
       StatefulBuilder(
         builder: (context, setState) {
           return Center(
@@ -65,6 +71,7 @@ class TestGameScene extends GameScene {
                   onPressed: () {
                     count++;
                     setState(() {});
+                    rendererModule?.update();
                   },
                 ),
               ],
@@ -72,7 +79,7 @@ class TestGameScene extends GameScene {
           );
         },
       ),
-    );
+    ];
   }
 
   @override

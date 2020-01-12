@@ -16,13 +16,6 @@ abstract class GameScene {
   /// 当前场景游戏对象
   List<GameObject> gameObjects;
 
-  /// 当前场景ui
-  List<Widget> _gameUi = List();
-
-  List<Widget> get gameUi => _gameUi;
-
-  set gameUi(List<Widget> value) => _gameUi = value ?? List();
-
   /// 引擎对象
   @protected
   Moengine moengine;
@@ -42,7 +35,6 @@ abstract class GameScene {
 
   GameScene() {
     gameObjects = List();
-    gameUi = List();
   }
 
   /// 场景被加入到游戏中
@@ -51,31 +43,11 @@ abstract class GameScene {
   @mustCallSuper
   void onAttach(Moengine moengine) {
     this.moengine = moengine;
-    gameUi.clear();
   }
 
-  /// 添加ui
-  void addUI(Widget widget) {
-    if (widget == null) {
-      return;
-    }
-    gameUi.add(widget);
-    rendererModule?.update();
-  }
-
-  /// 移除ui
-  void removeUI(Widget widget) {
-    gameUi.remove(widget);
-    rendererModule?.update();
-  }
-
-  /// 移除ui
-  void removeUIAt(int index) {
-    if (index < 0 || index > gameUi.length - 1) {
-      return;
-    }
-    gameUi.removeAt(index);
-    rendererModule?.update();
+  /// 构建ui
+  List<Widget> onBuildUi() {
+    return null;
   }
 
   /// 游戏绘制区域大小改变
@@ -98,7 +70,5 @@ abstract class GameScene {
   ///
   /// 从游戏中关闭场景或者移除场景时触发
   @mustCallSuper
-  void onDestroy() {
-    gameUi.clear();
-  }
+  void onDestroy() {}
 }

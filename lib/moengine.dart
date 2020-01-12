@@ -223,15 +223,10 @@ class _MoengineViewState extends State<MoengineView>
 
     // 添加观察者
     WidgetsBinding.instance.addObserver(this);
-
-    // 更新状态
-    widget.moengine?.getModule<RendererModule>()?.setState = setState;
   }
 
   @override
   void dispose() {
-    widget.moengine?.getModule<RendererModule>()?.setState = null;
-
     // 引擎销毁
     widget.moengine?._onDestroy();
 
@@ -259,6 +254,8 @@ class _MoengineViewState extends State<MoengineView>
   }
 
   /// 当一帧绘制完成后
+  ///
+  /// 主要是检测绘制区域变化
   void _onUpdated(Duration timeStamp) {
     Moengine moengine = widget.moengine;
     RenderBox renderBox = context.findRenderObject();
