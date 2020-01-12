@@ -7,10 +7,13 @@ import 'package:moengine/engine/module/scene_module.dart';
 ///
 /// 负责渲染游戏对象使用
 abstract class RendererModule extends EngineModule {
-  /// widget刷新函数
+  /// 刷新函数
   ///
   /// 需要在子类中定义刷新方法
   Function() markNeedsPaint;
+
+  /// setState
+  Function(VoidCallback voidCallback) setState;
 
   /// 管理场景操作的模块
   @protected
@@ -20,6 +23,13 @@ abstract class RendererModule extends EngineModule {
   void update() {
     if (markNeedsPaint != null) {
       markNeedsPaint();
+    }
+  }
+
+  /// 刷新状态
+  void updateState() {
+    if (setState != null) {
+      setState(() {});
     }
   }
 

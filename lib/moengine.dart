@@ -223,10 +223,15 @@ class _MoengineViewState extends State<MoengineView>
 
     // 添加观察者
     WidgetsBinding.instance.addObserver(this);
+
+    // 更新状态
+    widget.moengine?.getModule<RendererModule>()?.setState = setState;
   }
 
   @override
   void dispose() {
+    widget.moengine?.getModule<RendererModule>()?.setState = null;
+
     // 引擎销毁
     widget.moengine?._onDestroy();
 

@@ -58,26 +58,21 @@ class TestGameScene extends GameScene {
   @override
   List<Widget> onBuildUi() {
     return [
-      StatefulBuilder(
-        builder: (context, setState) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Text('Hello Game:$count'),
-                RaisedButton(
-                  child: const Text('ADD'),
-                  onPressed: () {
-                    count++;
-                    setState(() {});
-                    rendererModule?.update();
-                  },
-                ),
-              ],
+      Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Text('Hello Game:$count'),
+            RaisedButton(
+              child: const Text('ADD'),
+              onPressed: () {
+                count++;
+                rendererModule?.updateState();
+              },
             ),
-          );
-        },
+          ],
+        ),
       ),
     ];
   }
