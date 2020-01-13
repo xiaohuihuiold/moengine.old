@@ -1,12 +1,19 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:moengine/engine/module/engine_module.dart';
 import 'package:moengine/engine/module/scene_module.dart';
+import 'package:moengine/game/component/game_component.dart';
+import 'package:moengine/game/game_object.dart';
 
 /// 渲染器模块基础类
 ///
 /// 负责渲染游戏对象使用
 abstract class RendererModule extends EngineModule {
+  /// 缩放参数
+  double scaleFactory = 1.0;
+
   /// 刷新函数
   ///
   /// 需要在子类中定义刷新方法
@@ -102,9 +109,16 @@ class _RenderCanvas extends RenderBox
   /// 场景模块,负责渲染回调
   SceneModule sceneModule;
 
+  /// 渲染模块
+  RendererModule _rendererModule;
+
+  /// 画笔
+  final Paint _gameObjectPaint = Paint();
+
   /// 将markNeedsPaint交给渲染模块
   set rendererModule(RendererModule rendererModule) {
     rendererModule?.markNeedsPaint = markNeedsPaint;
+    _rendererModule = rendererModule;
   }
 
   _RenderCanvas({
@@ -133,10 +147,89 @@ class _RenderCanvas extends RenderBox
   @override
   void paint(PaintingContext context, Offset offset) {
     sceneModule?.renderScene?.onUpdate();
-    Canvas canvas = context.canvas;
+    // 绘制游戏对象
+    List<GameObject> gameObjects = sceneModule?.renderScene?.gameObjects;
+    if (gameObjects != null) {
+      _paintGameObjects(gameObjects, context, offset);
+    }
+    // 绘制ui
     if (childCount != 0) {
       defaultPaint(context, offset);
     }
+  }
+
+  /// 绘制游戏对象
+  void _paintGameObjects(
+      List<GameObject> gameObjects, PaintingContext context, Offset offset) {
+    Canvas canvas = context.canvas;
+    canvas.save();
+    canvas.translate(offset.dx, offset.dy);
+    gameObjects.forEach((GameObject gameObject) {
+      if (gameObject == null) {
+        return;
+      }
+      Map<Type, GameComponent> componentMap = gameObject.componentMap;
+      if (componentMap == null) {
+        return;
+      }
+      AnchorComponent anchorComponent = componentMap[AnchorComponent];
+      ScaleComponent scaleComponent = componentMap[ScaleComponent];
+      Rotate2DComponent rotate2dComponent = componentMap[Rotate2DComponent];
+      SpriteComponent spriteComponent = componentMap[SpriteComponent];
+      PositionComponent positionComponent = componentMap[PositionComponent];
+      CanvasComponent canvasComponent = componentMap[CanvasComponent];
+
+      if (positionComponent == null || spriteComponent == null) {
+        return;
+      } else if (canvasComponent != null) {
+        canvasComponent.render(canvas);
+        return;
+      }
+
+      ui.Image image = spriteComponent.image;
+      Offset position = positionComponent.position;
+      Offset anchor = anchorComponent?.anchor ?? Offset.zero;
+      Size scale = scaleComponent?.scale ?? const Size(1.0, 1.0);
+      Rect src = spriteComponent.src ??
+          Rect.fromLTWH(
+            0.0,
+            0.0,
+            image.width.toDouble(),
+            image.height.toDouble(),
+          );
+      src = Rect.fromLTWH(
+        0.0,
+        0.0,
+        src.width * _rendererModule.scaleFactory,
+        src.height * _rendererModule.scaleFactory,
+      );
+      Size size = Size(src.width * scale.width, src.height * scale.height);
+
+      canvas.save();
+
+      // 旋转画布
+      if (rotate2dComponent != null) {
+        canvas.translate(position.dx, position.dy);
+        canvas.rotate(rotate2dComponent.radians);
+        canvas.translate(-position.dx, -position.dy);
+      }
+
+      position = position.translate(
+        -size.width * anchor?.dx,
+        -size.height * anchor?.dy,
+      );
+      canvas.drawImageRect(
+        image,
+        src,
+        ui.Rect.fromLTWH(position.dx, position.dy, size.width, size.height),
+        _gameObjectPaint,
+      );
+
+      canvas.restore();
+    });
+
+    canvas.translate(-offset.dx, -offset.dy);
+    canvas.restore();
   }
 
   @override

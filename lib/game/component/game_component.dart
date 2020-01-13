@@ -13,8 +13,9 @@ abstract class GameComponent {
 ///
 /// 包含坐标信息
 class PositionComponent extends GameComponent {
-  double x;
-  double y;
+  Offset position;
+
+  PositionComponent({this.position});
 }
 
 /// 二维旋转组件
@@ -23,14 +24,17 @@ class PositionComponent extends GameComponent {
 /// 弧度
 class Rotate2DComponent extends GameComponent {
   double radians;
+
+  Rotate2DComponent({this.radians});
 }
 
 /// 缩放组件
 ///
 /// 宽高缩放
 class ScaleComponent extends GameComponent {
-  double w;
-  double h;
+  Size scale;
+
+  ScaleComponent({this.scale});
 }
 
 /// 锚点组件
@@ -38,6 +42,8 @@ class ScaleComponent extends GameComponent {
 /// 旋转缩放的锚点
 class AnchorComponent extends GameComponent {
   Offset anchor;
+
+  AnchorComponent({this.anchor});
 }
 
 /// 精灵组件
@@ -45,11 +51,14 @@ class AnchorComponent extends GameComponent {
 /// 可以添加一张图片
 class SpriteComponent extends GameComponent {
   Image image;
-  double width;
-  double height;
+  Rect src;
+
+  SpriteComponent({this.image, this.src});
 }
 
 /// 自定义绘制组件
 class CanvasComponent extends GameComponent {
   Function(Canvas canvas) render;
+
+  CanvasComponent({this.render});
 }

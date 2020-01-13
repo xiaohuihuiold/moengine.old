@@ -5,15 +5,15 @@ import 'package:moengine/game/component/game_component.dart';
 /// 展示在画面上除ui之外的所有物体的基础类
 class GameObject {
   /// 游戏对象所含组件
-  Map<Type, GameComponent> _components = Map();
+  Map<Type, GameComponent> _componentMap = Map();
 
-  Map<Type, GameComponent> get components => _components;
+  Map<Type, GameComponent> get componentMap => _componentMap;
 
-  set components(Map<Type, GameComponent> component) =>
-      _components = component ?? Map();
+  set componentMap(Map<Type, GameComponent> component) =>
+      _componentMap = component ?? Map();
 
   /// 获取所有组件
-  Iterable<GameComponent> get allComponent => components.values;
+  Iterable<GameComponent> get components => componentMap.values;
 
   GameObject([List<GameComponent> components]) {
     // 检查重复组件
@@ -36,7 +36,7 @@ class GameObject {
         return;
       }
       component.gameObject = this;
-      this.components[component.runtimeType] = component;
+      componentMap[component.runtimeType] = component;
     });
   }
 
@@ -47,8 +47,8 @@ class GameObject {
     }
     // 当已经有同类型的组件时需要先移除
     assert(
-        components[component.runtimeType] == null, 'Need to be removed first');
-    components[component.runtimeType] = component;
+        componentMap[component.runtimeType] == null, 'Need to be removed first');
+    componentMap[component.runtimeType] = component;
     component.gameObject = this;
     return true;
   }
@@ -58,25 +58,25 @@ class GameObject {
     if (type == null) {
       return false;
     }
-    GameComponent component = components[type];
+    GameComponent component = componentMap[type];
     if (component == null) {
       return true;
     }
     component.gameObject = null;
-    components.remove(type);
+    componentMap.remove(type);
     return true;
   }
 
   /// 移除所有组件
   void removeAllComponent() {
-    components.forEach((_, GameComponent component) {
+    componentMap.forEach((_, GameComponent component) {
       component?.gameObject = null;
     });
-    components.clear();
+    componentMap.clear();
   }
 
   /// 获取组件
   T getComponent<T>() {
-    return components[T] as T;
+    return componentMap[T] as T;
   }
 }

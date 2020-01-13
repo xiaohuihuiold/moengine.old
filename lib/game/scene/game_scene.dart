@@ -14,6 +14,10 @@ abstract class GameScene {
   /// 场景名
   String name;
 
+  /// 场景大小
+  @protected
+  Size size;
+
   /// 当前场景游戏对象
   List<GameObject> gameObjects;
 
@@ -38,6 +42,18 @@ abstract class GameScene {
     gameObjects = List();
   }
 
+  /// 更新
+  @protected
+  void update() {
+    rendererModule?.update();
+  }
+
+  /// 更新状态
+  @protected
+  void updateState() {
+    rendererModule?.updateState();
+  }
+
   /// 场景被加入到游戏中
   ///
   /// 实例化之后加入到游戏里面,但是还没有展示出来
@@ -52,7 +68,10 @@ abstract class GameScene {
   }
 
   /// 游戏绘制区域大小改变
-  void onResize(Size size) {}
+  @mustCallSuper
+  void onResize(Size size) {
+    this.size = size;
+  }
 
   /// 游戏画面的更新
   void onUpdate();

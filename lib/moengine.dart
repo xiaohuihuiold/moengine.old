@@ -62,16 +62,22 @@ class ModuleManager {
   Moengine _moengine;
 
   /// 模块集合
-  Map<Type, EngineModule> _modules;
+  Map<Type, EngineModule> _moduleMap;
 
   /// 获取所有模块
-  Iterable<EngineModule> get allModule => _modules.values;
+  Iterable<EngineModule> get modules => _moduleMap.values;
 
   /// 模块数量
-  int get moduleLength => _modules.length;
+  int get moduleLength => _moduleMap.length;
+
+  /// 系统模块
+  RendererModule _rendererModule;
+  AudioModule _audioModule;
+  ResourceModule _resourceModule;
+  SceneModule _sceneModule;
 
   ModuleManager._internal([List<EngineModule> modules]) {
-    _modules = Map();
+    _moduleMap = Map();
 
     // 检查重复模块
     Map<Type, int> moduleCount = Map();
@@ -109,48 +115,53 @@ class ModuleManager {
       // 引擎需要的特殊模块虽然可以自定义
       // 但是查找时的类型必须是特殊模块基类
       if (module is RendererModule) {
-        _modules[RendererModule] = module;
+        _rendererModule = module;
       } else if (module is AudioModule) {
-        _modules[AudioModule] = module;
+        _audioModule = module;
       } else if (module is ResourceModule) {
-        _modules[ResourceModule] = module;
+        _resourceModule = module;
       } else if (module is SceneModule) {
-        _modules[SceneModule] = module;
+        _sceneModule = module;
       } else {
-        _modules[module.runtimeType] = module;
+        _moduleMap[module.runtimeType] = module;
       }
     });
 
     // 设置默认模块
-    _modules[RendererModule] ??= CanvasRendererModule();
-    _modules[SceneModule] ??= SceneModule();
+    _rendererModule ??= CanvasRendererModule();
+    _sceneModule ??= SceneModule();
+
+    _moduleMap[RendererModule] = _rendererModule;
+    _moduleMap[AudioModule] = _audioModule;
+    _moduleMap[ResourceModule] = _resourceModule;
+    _moduleMap[SceneModule] = _sceneModule;
   }
 
   /// 用于给所有模块附加上引擎对象
   void _onAttach(Moengine moengine) {
     _moengine = moengine;
-    _modules.forEach((_, EngineModule module) => module?.onAttach(_moengine));
+    _moduleMap.forEach((_, EngineModule module) => module?.onAttach(_moengine));
   }
 
   /// 绘制区域大小变化
   void _onResize(Size size) {
-    _modules.forEach((_, EngineModule module) => module?.onResize(size));
+    _moduleMap.forEach((_, EngineModule module) => module?.onResize(size));
   }
 
   /// 暂停所有模块
   void _onPause() {
-    _modules.forEach((_, EngineModule module) => module?.onPause());
+    _moduleMap.forEach((_, EngineModule module) => module?.onPause());
   }
 
   /// 恢复所有模块
   void _onResume() {
-    _modules.forEach((_, EngineModule module) => module?.onResume());
+    _moduleMap.forEach((_, EngineModule module) => module?.onResume());
   }
 
   /// 用于销毁所有模块
   void _onDestroy() {
-    _modules.forEach((_, EngineModule module) => module?.onDestroy());
-    _modules.clear();
+    _moduleMap.forEach((_, EngineModule module) => module?.onDestroy());
+    _moduleMap.clear();
   }
 
   /// 添加模块
@@ -160,8 +171,8 @@ class ModuleManager {
       return false;
     }
     // 当已经有同类型的模块时需要先移除
-    assert(_modules[module.runtimeType] == null, 'Need to be removed first');
-    _modules[module.runtimeType] = module;
+    assert(_moduleMap[module.runtimeType] == null, 'Need to be removed first');
+    _moduleMap[module.runtimeType] = module;
     // 新添加的模块执行附加动作
     module.onAttach(_moengine);
     return true;
@@ -173,7 +184,7 @@ class ModuleManager {
     if (type == null) {
       return false;
     }
-    EngineModule module = _modules[type];
+    EngineModule module = _moduleMap[type];
     if (module == null) {
       return true;
     }
@@ -181,7 +192,7 @@ class ModuleManager {
     if (!module.onRemove()) {
       return false;
     }
-    _modules.remove(type);
+    _moduleMap.remove(type);
     // 执行销毁动作
     module.onDestroy();
     return true;
@@ -189,7 +200,17 @@ class ModuleManager {
 
   /// 获取一个模块
   T getModule<T>() {
-    return _modules[T] as T;
+    switch (T) {
+      case RendererModule:
+        return _rendererModule as T;
+      case AudioModule:
+        return _audioModule as T;
+      case ResourceModule:
+        return _resourceModule as T;
+      case SceneModule:
+        return _sceneModule as T;
+    }
+    return _moduleMap[T] as T;
   }
 
   /// 检查是否是引擎模块

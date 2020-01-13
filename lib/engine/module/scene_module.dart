@@ -12,8 +12,9 @@ class SceneModule extends EngineModule {
 
   /// 渲染模块
   @protected
-  RendererModule get rendererModule =>
-      moduleManager?.getModule<RendererModule>();
+  RendererModule get rendererModule {
+    return moduleManager?.getModule<RendererModule>();
+  }
 
   /// 需要渲染的场景
   GameScene get renderScene {
