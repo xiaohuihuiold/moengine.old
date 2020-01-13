@@ -163,6 +163,11 @@ class _RenderCanvas extends RenderBox
       List<GameObject> gameObjects, PaintingContext context, Offset offset) {
     Canvas canvas = context.canvas;
     canvas.save();
+    // 裁剪游戏区域
+    canvas.clipRect(
+      Rect.fromLTWH(offset.dx, offset.dy, size.width, size.height),
+    );
+    // 坐标对其游戏视图坐标
     canvas.translate(offset.dx, offset.dy);
     gameObjects.forEach((GameObject gameObject) {
       if (gameObject == null) {
@@ -172,6 +177,7 @@ class _RenderCanvas extends RenderBox
       if (componentMap == null) {
         return;
       }
+      // 取得所有组件
       AnchorComponent anchorComponent = componentMap[AnchorComponent];
       ScaleComponent scaleComponent = componentMap[ScaleComponent];
       Rotate2DComponent rotate2dComponent = componentMap[Rotate2DComponent];
@@ -180,16 +186,21 @@ class _RenderCanvas extends RenderBox
       CanvasComponent canvasComponent = componentMap[CanvasComponent];
 
       if (positionComponent == null || spriteComponent == null) {
-        return;
-      } else if (canvasComponent != null) {
-        canvasComponent.render(canvas);
+        // 当绘制的不是精灵,但是有自定义的渲染组件时
+        if (canvasComponent != null) {
+          canvasComponent.render(canvas);
+        }
         return;
       }
 
+      // 当绘制的是精灵时
       ui.Image image = spriteComponent.image;
       Offset position = positionComponent.position;
+      // 默认锚点左上角
       Offset anchor = anchorComponent?.anchor ?? Offset.zero;
+      // 默认缩放原比例
       Size scale = scaleComponent?.scale ?? const Size(1.0, 1.0);
+      // 默认显示整个图片
       Rect src = spriteComponent.src ??
           Rect.fromLTWH(
             0.0,
@@ -197,13 +208,9 @@ class _RenderCanvas extends RenderBox
             image.width.toDouble(),
             image.height.toDouble(),
           );
-      src = Rect.fromLTWH(
-        0.0,
-        0.0,
-        src.width * _rendererModule.scaleFactory,
-        src.height * _rendererModule.scaleFactory,
-      );
-      Size size = Size(src.width * scale.width, src.height * scale.height);
+      // 图片缩放并变换为flutter尺寸
+      Size size = Size(src.width * scale.width / _rendererModule.scaleFactory,
+          src.height * scale.height / _rendererModule.scaleFactory);
 
       canvas.save();
 
@@ -214,6 +221,7 @@ class _RenderCanvas extends RenderBox
         canvas.translate(-position.dx, -position.dy);
       }
 
+      // 根据坐标加上锚点位置确定最终坐标
       position = position.translate(
         -size.width * anchor?.dx,
         -size.height * anchor?.dy,
@@ -224,6 +232,10 @@ class _RenderCanvas extends RenderBox
         ui.Rect.fromLTWH(position.dx, position.dy, size.width, size.height),
         _gameObjectPaint,
       );
+      // 如果是canvas组件,则用户自行渲染
+      canvas.translate(position.dx, position.dy);
+      canvasComponent?.render(canvas);
+      canvas.translate(-position.dx, -position.dy);
 
       canvas.restore();
     });

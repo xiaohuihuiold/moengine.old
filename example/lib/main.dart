@@ -44,6 +44,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // TODO: ui结构改变,module没更新
     return Scaffold(
       body: MoengineView(
         moengine: _moengine,
@@ -91,8 +92,15 @@ class TestGameScene extends GameScene with PanDetector {
                 PositionComponent(
                   position: Offset(size.width / 2.0, size.height / 1.5),
                 ),
-                ScaleComponent(scale: const Size(0.5, 0.5)),
+                ScaleComponent(scale: const Size(1.0, 1.0)),
                 AnchorComponent(anchor: const Offset(0.5, 0.5)),
+                CanvasComponent(render: (Canvas canvas) {
+                  canvas.drawCircle(
+                    Offset.zero,
+                    10.0,
+                    Paint()..color = Colors.pink,
+                  );
+                }),
               ],
             );
             gameObjects.add(flutterObject);
@@ -127,6 +135,7 @@ class TestGameScene extends GameScene with PanDetector {
     PositionComponent positionComponent =
         flutterObject.getComponent<PositionComponent>();
     positionComponent.position = Offset(position.dx, position.dy);
+    update();
   }
 
   /// 加载图片

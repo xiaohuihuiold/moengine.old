@@ -304,6 +304,8 @@ class _MoengineViewState extends State<MoengineView>
     Moengine moengine = widget.moengine;
     // 添加帧回调
     WidgetsBinding.instance.addPostFrameCallback(_onUpdated);
+    widget.moengine?.getModule<RendererModule>()?.scaleFactory =
+        MediaQuery.of(context).devicePixelRatio;
     return MouseRegion(
       onEnter:
           _scene is MouseDetector ? (_scene as MouseDetector).onEnter : null,
