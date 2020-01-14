@@ -58,6 +58,8 @@ class SpriteComponent extends GameComponent {
 }
 
 /// 大小组件
+///
+/// 定义的绘制区域
 class SizeComponent extends GameComponent {
   Size size;
 
@@ -65,6 +67,8 @@ class SizeComponent extends GameComponent {
 }
 
 /// 画笔组件
+///
+/// 自定义游戏画笔
 class PaintComponent extends GameComponent {
   Paint paint;
 
@@ -77,6 +81,8 @@ class PaintComponent extends GameComponent {
 class ClipComponent extends GameComponent {}
 
 /// 变换组件
+///
+/// 可以实现各种变换
 class TransformComponent extends GameComponent {
   Float64List transform;
 
@@ -84,6 +90,8 @@ class TransformComponent extends GameComponent {
 }
 
 /// 自定义绘制组件
+///
+/// 简单的绘制特殊形状的组件
 class RenderComponent extends GameComponent {
   Function(GameObject gameObject, Canvas canvas, Paint paint) render;
 
@@ -91,6 +99,8 @@ class RenderComponent extends GameComponent {
 }
 
 /// 自定义组件
+///
+/// 可以自定义更多的组件
 abstract class CustomComponent extends GameComponent {
   void render(GameObject gameObject, Canvas canvas, Paint paint);
 }
