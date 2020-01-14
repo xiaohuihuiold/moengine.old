@@ -9,17 +9,26 @@ class GameObject {
 
   Map<Type, GameComponent> get componentMap => _componentMap;
 
-  set componentMap(Map<Type, GameComponent> component) =>
-      _componentMap = component ?? Map();
+  set componentMap(Map<Type, GameComponent> value) =>
+      _componentMap = value ?? Map();
+
+  /// 游戏自定义组件
+  List<CustomComponent> _customComponents = List();
+
+  List<CustomComponent> get customComponents => _customComponents;
+
+  set customComponents(List<CustomComponent> value) =>
+      _customComponents = value ?? List();
 
   /// 获取所有组件
   Iterable<GameComponent> get components => componentMap.values;
 
   GameObject([List<GameComponent> components]) {
     // 检查重复组件
+    // 跳过自定义组件
     Map<Type, int> componentCount = Map();
     components?.forEach((GameComponent component) {
-      if (component == null) {
+      if (component == null || component is CustomComponent) {
         return;
       }
       componentCount[component.runtimeType] ??= 0;
@@ -35,6 +44,13 @@ class GameObject {
       if (component == null) {
         return;
       }
+      // 自定义组件放入自定义组件列表
+      if (component is CustomComponent &&
+          !customComponents.contains(component)) {
+        component.gameObject = this;
+        customComponents.add(component);
+        return;
+      }
       component.gameObject = this;
       componentMap[component.runtimeType] = component;
     });
@@ -45,25 +61,49 @@ class GameObject {
     if (component == null) {
       return false;
     }
+    // 自定义组件放入自定义组件列表
+    if (component is CustomComponent) {
+      assert(!customComponents.contains(component), 'Need to be removed first');
+      customComponents.add(component);
+      return true;
+    }
     // 当已经有同类型的组件时需要先移除
-    assert(
-        componentMap[component.runtimeType] == null, 'Need to be removed first');
+    assert(componentMap[component.runtimeType] == null,
+        'Need to be removed first');
     componentMap[component.runtimeType] = component;
     component.gameObject = this;
     return true;
   }
 
   /// 移除组件
-  bool removeComponent(Type type) {
-    if (type == null) {
+  bool removeComponent(dynamic typeOrComponent) {
+    if (typeOrComponent == null) {
       return false;
     }
-    GameComponent component = componentMap[type];
+    // 是自定义组件时移除自定义组件
+    if (typeOrComponent is CustomComponent) {
+      customComponents.remove(typeOrComponent);
+      return true;
+    }
+    // 不是type时不做操作
+    if (typeOrComponent is! Type) {
+      return false;
+    }
+    GameComponent component = componentMap[typeOrComponent];
     if (component == null) {
       return true;
     }
     component.gameObject = null;
-    componentMap.remove(type);
+    componentMap.remove(typeOrComponent);
+    return true;
+  }
+
+  /// 根据下标移除组件
+  bool removeComponentAt(int index) {
+    if (index < 0 || index > customComponents.length - 1) {
+      return false;
+    }
+    customComponents.removeAt(index);
     return true;
   }
 
@@ -73,10 +113,22 @@ class GameObject {
       component?.gameObject = null;
     });
     componentMap.clear();
+    customComponents.forEach((GameComponent component) {
+      component?.gameObject = null;
+    });
+    customComponents.clear();
   }
 
   /// 获取组件
   T getComponent<T>() {
     return componentMap[T] as T;
+  }
+
+  /// 根据下标获取组件
+  T getComponentAt<T extends CustomComponent>(int index) {
+    if (index < 0 || index > customComponents.length - 1) {
+      return null;
+    }
+    return customComponents[index];
   }
 }

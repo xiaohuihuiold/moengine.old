@@ -151,6 +151,7 @@ class _RenderCanvas extends RenderBox
 
   @override
   void paint(PaintingContext context, Offset offset) {
+    // 计算一帧绘制时间
     int nowTime = DateTime.now().millisecondsSinceEpoch;
     _startTime ??= nowTime;
     int deltaTime = nowTime - _startTime;
@@ -176,50 +177,74 @@ class _RenderCanvas extends RenderBox
     canvas.clipRect(
       Rect.fromLTWH(offset.dx, offset.dy, size.width, size.height),
     );
-    // 坐标对其游戏视图坐标
+
+    // 坐标对齐游戏视图坐标
     canvas.translate(offset.dx, offset.dy);
     gameObjects.forEach((GameObject gameObject) {
       if (gameObject == null) {
         return;
       }
       Map<Type, GameComponent> componentMap = gameObject.componentMap;
-      if (componentMap == null) {
+      List<CustomComponent> customComponents = gameObject.customComponents;
+      if (componentMap == null || componentMap.isEmpty) {
         return;
       }
+      Paint drawPaint = _gameObjectPaint;
       // 取得所有组件
       AnchorComponent anchorComponent = componentMap[AnchorComponent];
       ScaleComponent scaleComponent = componentMap[ScaleComponent];
       Rotate2DComponent rotate2dComponent = componentMap[Rotate2DComponent];
       SpriteComponent spriteComponent = componentMap[SpriteComponent];
+      SizeComponent sizeComponent = componentMap[SizeComponent];
       PositionComponent positionComponent = componentMap[PositionComponent];
-      CanvasComponent canvasComponent = componentMap[CanvasComponent];
+      RenderComponent canvasComponent = componentMap[RenderComponent];
+      ClipComponent clipComponent = componentMap[ClipComponent];
+      PaintComponent paintComponent = componentMap[PaintComponent];
 
-      if (positionComponent == null || spriteComponent == null) {
-        // 当绘制的不是精灵,但是有自定义的渲染组件时
-        if (canvasComponent != null) {
-          canvasComponent.render(gameObject, canvas);
-        }
+      // 设置自定义画笔
+      if (paintComponent != null) {
+        drawPaint = paintComponent.paint;
+      }
+      // 没有坐标的物体不绘制
+      if (positionComponent == null) {
+        return;
+      }
+      // 不是精灵并且也没有大小的物体也不进行绘制
+      if (spriteComponent == null && sizeComponent == null) {
         return;
       }
 
-      // 当绘制的是精灵时
-      ui.Image image = spriteComponent.image;
+      // 绘制坐标
       Offset position = positionComponent.position;
-      // 默认锚点左上角
+      // 锚点,默认锚点左上角
       Offset anchor = anchorComponent?.anchor ?? Offset.zero;
-      // 默认缩放原比例
-      Size scale = scaleComponent?.scale ?? const Size(1.0, 1.0);
-      // 默认显示整个图片
-      Rect src = spriteComponent.src ??
-          Rect.fromLTWH(
-            0.0,
-            0.0,
-            image.width.toDouble(),
-            image.height.toDouble(),
-          );
+      // 游戏对象尺寸
+      Size size = sizeComponent?.size;
+
+      // 精灵组件
+      ui.Image image = spriteComponent?.image;
+      // 精灵图片读取范围,默认显示整个图片
+      Rect src = spriteComponent?.src;
+      if (src == null && image != null) {
+        src = Rect.fromLTWH(
+          0.0,
+          0.0,
+          image.width.toDouble(),
+          image.height.toDouble(),
+        );
+      }
       // 图片缩放并变换为flutter尺寸
-      Size size = Size(src.width * scale.width / _rendererModule.scaleFactory,
-          src.height * scale.height / _rendererModule.scaleFactory);
+      if (src != null) {
+        size ??= Size(
+          src.width / _rendererModule.scaleFactory,
+          src.height / _rendererModule.scaleFactory,
+        );
+      }
+
+      // 当没有尺寸组件,并且也没有从精灵组件读取到宽高时则不进行绘制
+      if (size == null) {
+        return;
+      }
 
       canvas.save();
 
@@ -230,20 +255,47 @@ class _RenderCanvas extends RenderBox
         canvas.translate(-position.dx, -position.dy);
       }
 
+      // 缩放画布
+      if (scaleComponent != null) {
+        canvas.translate(position.dx, position.dy);
+        canvas.scale(scaleComponent.scale.width, scaleComponent.scale.height);
+        canvas.translate(-position.dx, -position.dy);
+      }
+
       // 根据坐标加上锚点位置确定最终坐标
       position = position.translate(
         -size.width * anchor?.dx,
         -size.height * anchor?.dy,
       );
-      canvas.drawImageRect(
-        image,
-        src,
-        ui.Rect.fromLTWH(position.dx, position.dy, size.width, size.height),
-        _gameObjectPaint,
-      );
+
+      Rect dst =
+          Rect.fromLTWH(position.dx, position.dy, size.width, size.height);
+
+      // 执行裁剪
+      if (clipComponent != null) {
+        canvas.clipRect(dst);
+      }
+
+      // 绘制精灵
+      if (spriteComponent != null && spriteComponent.image != null) {
+        canvas.drawImageRect(
+          image,
+          src,
+          dst,
+          drawPaint,
+        );
+      }
+
       // 如果是canvas组件,则用户自行渲染
       canvas.translate(position.dx, position.dy);
-      canvasComponent?.render(gameObject, canvas);
+      canvasComponent?.render(gameObject, canvas, drawPaint);
+      canvas.translate(-position.dx, -position.dy);
+
+      // 自定义组件渲染
+      canvas.translate(position.dx, position.dy);
+      customComponents.forEach((CustomComponent customComponent) {
+        customComponent.render(gameObject, canvas, drawPaint);
+      });
       canvas.translate(-position.dx, -position.dy);
 
       canvas.restore();

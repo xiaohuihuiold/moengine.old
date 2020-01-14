@@ -56,9 +56,33 @@ class SpriteComponent extends GameComponent {
   SpriteComponent({this.image, this.src});
 }
 
-/// 自定义绘制组件
-class CanvasComponent extends GameComponent {
-  Function(GameObject gameObject, Canvas canvas) render;
+/// 大小组件
+class SizeComponent extends GameComponent {
+  Size size;
 
-  CanvasComponent({this.render});
+  SizeComponent({this.size});
+}
+
+/// 画笔组件
+class PaintComponent extends GameComponent {
+  Paint paint;
+
+  PaintComponent({this.paint});
+}
+
+/// 裁剪组件
+///
+/// 按对象尺寸裁剪
+class ClipComponent extends GameComponent {}
+
+/// 自定义绘制组件
+class RenderComponent extends GameComponent {
+  Function(GameObject gameObject, Canvas canvas, Paint paint) render;
+
+  RenderComponent({this.render});
+}
+
+/// 自定义组件
+abstract class CustomComponent extends GameComponent {
+  void render(GameObject gameObject, Canvas canvas, Paint paint);
 }

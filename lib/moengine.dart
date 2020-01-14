@@ -1,6 +1,5 @@
 library moengine;
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:moengine/engine/module/audio_module.dart';
 import 'package:moengine/engine/module/engine_module.dart';
