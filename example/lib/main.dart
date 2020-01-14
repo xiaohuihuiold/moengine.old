@@ -111,6 +111,9 @@ class TestGameScene extends GameScene with PanDetector {
                     SizeComponent(size: const Size(100.0, 100.0)),
                     ScaleComponent(scale: const Size(1.0, 1.0)),
                     AnchorComponent(anchor: const Offset(0.5, 0.5)),
+                    TransformComponent(
+                      transform: Matrix4.identity().storage,
+                    ),
                     RenderComponent(render:
                         (GameObject gameObject, Canvas canvas, Paint paint) {
                       canvas.drawCircle(

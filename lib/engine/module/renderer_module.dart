@@ -172,6 +172,7 @@ class _RenderCanvas extends RenderBox
   void _paintGameObjects(
       List<GameObject> gameObjects, PaintingContext context, Offset offset) {
     Canvas canvas = context.canvas;
+
     canvas.save();
     // 裁剪游戏区域
     canvas.clipRect(
@@ -199,6 +200,7 @@ class _RenderCanvas extends RenderBox
       PositionComponent positionComponent = componentMap[PositionComponent];
       RenderComponent canvasComponent = componentMap[RenderComponent];
       ClipComponent clipComponent = componentMap[ClipComponent];
+      TransformComponent transformComponent = componentMap[TransformComponent];
       PaintComponent paintComponent = componentMap[PaintComponent];
 
       // 设置自定义画笔
@@ -248,6 +250,11 @@ class _RenderCanvas extends RenderBox
 
       canvas.save();
 
+      // 变换组件
+      if (transformComponent != null && transformComponent.transform != null) {
+        canvas.transform(transformComponent.transform);
+      }
+
       // 旋转画布
       if (rotate2dComponent != null) {
         canvas.translate(position.dx, position.dy);
@@ -275,7 +282,6 @@ class _RenderCanvas extends RenderBox
       if (clipComponent != null) {
         canvas.clipRect(dst);
       }
-
       // 绘制精灵
       if (spriteComponent != null && spriteComponent.image != null) {
         canvas.drawImageRect(

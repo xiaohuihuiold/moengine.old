@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:moengine/game/game_object.dart';
@@ -74,6 +75,13 @@ class PaintComponent extends GameComponent {
 ///
 /// 按对象尺寸裁剪
 class ClipComponent extends GameComponent {}
+
+/// 变换组件
+class TransformComponent extends GameComponent {
+  Float64List transform;
+
+  TransformComponent({this.transform});
+}
 
 /// 自定义绘制组件
 class RenderComponent extends GameComponent {
