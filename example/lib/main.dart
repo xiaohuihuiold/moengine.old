@@ -80,52 +80,60 @@ class TestGameScene extends GameScene with PanDetector {
   @override
   List<Widget> onBuildUi() {
     return [
-      Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            RaisedButton(
-              child: const Text('Rotate'),
-              onPressed: () {
-                if (flutterObject.getComponent<Rotate2DComponent>() != null) {
-                  flutterObject.removeComponent(Rotate2DComponent);
-                } else {
-                  flutterObject.addComponent(
-                      Rotate2DComponent(radians: angle / 180.0 * pi));
-                }
-              },
+      GestureDetector(
+        onTap: (){},
+        child: Container(
+          width: double.infinity,
+          height: double.infinity,
+          color: Colors.red.withOpacity(0.2),
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                RaisedButton(
+                  child: const Text('Rotate'),
+                  onPressed: () {
+                    if (flutterObject.getComponent<Rotate2DComponent>() != null) {
+                      flutterObject.removeComponent(Rotate2DComponent);
+                    } else {
+                      flutterObject.addComponent(
+                          Rotate2DComponent(radians: angle / 180.0 * pi));
+                    }
+                  },
+                ),
+                RaisedButton(
+                  child: const Text('Init'),
+                  onPressed: () async {
+                    removeGameObject(flutterObject);
+                    flutterObject = createObject(
+                      [
+                        SpriteComponent(
+                          image: await _loadImage('assets/images/flutter.png'),
+                        ),
+                        ClipComponent(),
+                        PositionComponent(
+                          position: Offset(size.width / 2.0, size.height / 1.5),
+                        ),
+                        SizeComponent(size: const Size(100.0, 100.0)),
+                        ScaleComponent(scale: const Size(1.0, 1.0)),
+                        AnchorComponent(anchor: const Offset(0.5, 0.5)),
+                        RenderComponent(render:
+                            (GameObject gameObject, Canvas canvas, Paint paint) {
+                          canvas.drawCircle(
+                            const Offset(50.0, 50.0),
+                            10.0,
+                            paint..color = Colors.pink,
+                          );
+                        }),
+                      ],
+                    );
+                    addGameObject(flutterObject);
+                    update();
+                  },
+                ),
+              ],
             ),
-            RaisedButton(
-              child: const Text('Init'),
-              onPressed: () async {
-                removeGameObject(flutterObject);
-                flutterObject = createObject(
-                  [
-                    SpriteComponent(
-                      image: await _loadImage('assets/images/flutter.png'),
-                    ),
-                    ClipComponent(),
-                    PositionComponent(
-                      position: Offset(size.width / 2.0, size.height / 1.5),
-                    ),
-                    SizeComponent(size: const Size(100.0, 100.0)),
-                    ScaleComponent(scale: const Size(1.0, 1.0)),
-                    AnchorComponent(anchor: const Offset(0.5, 0.5)),
-                    RenderComponent(render:
-                        (GameObject gameObject, Canvas canvas, Paint paint) {
-                      canvas.drawCircle(
-                        const Offset(50.0, 50.0),
-                        10.0,
-                        paint..color = Colors.pink,
-                      );
-                    }),
-                  ],
-                );
-                addGameObject(flutterObject);
-                update();
-              },
-            ),
-          ],
+          ),
         ),
       ),
     ];

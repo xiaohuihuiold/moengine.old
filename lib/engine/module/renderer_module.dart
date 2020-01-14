@@ -313,6 +313,7 @@ class _RenderCanvas extends RenderBox
 
   @override
   bool hitTestChildren(BoxHitTestResult result, {Offset position}) {
+    // TODO: 点击测试修复
     return defaultHitTestChildren(result, position: position);
   }
 }
