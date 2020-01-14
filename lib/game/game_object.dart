@@ -1,3 +1,4 @@
+import 'package:moengine/engine/exception/engine_exception.dart';
 import 'package:moengine/game/component/game_component.dart';
 
 /// 游戏对象
@@ -39,6 +40,9 @@ class GameObject {
     int repeatComponentCount =
         componentCount.values.where((int count) => count > 1).length;
     assert(repeatComponentCount == 0, 'repeatComponentCount > 0');
+    if (!(repeatComponentCount == 0)) {
+      throw ElementRepeatException();
+    }
 
     components?.forEach((GameComponent component) {
       if (component == null) {
@@ -63,13 +67,20 @@ class GameObject {
     }
     // 自定义组件放入自定义组件列表
     if (component is CustomComponent) {
-      assert(!customComponents.contains(component), 'Need to be removed first');
+      bool hasComponent = customComponents.contains(component);
+      assert(!hasComponent, 'Need to be removed first');
+      if (!(!hasComponent)) {
+        throw ElementRepeatException();
+      }
       customComponents.add(component);
       return true;
     }
     // 当已经有同类型的组件时需要先移除
     assert(componentMap[component.runtimeType] == null,
         'Need to be removed first');
+    if (!(componentMap[component.runtimeType] == null)) {
+      throw ElementRepeatException();
+    }
     componentMap[component.runtimeType] = component;
     component.gameObject = this;
     return true;

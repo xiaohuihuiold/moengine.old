@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+import 'package:moengine/engine/exception/engine_exception.dart';
 import 'package:moengine/engine/module/engine_module.dart';
 import 'package:moengine/engine/module/renderer_module.dart';
 import 'package:moengine/game/scene/game_scene.dart';
@@ -33,7 +34,11 @@ class SceneModule extends EngineModule {
     if (scenes == null) {
       return;
     }
-    assert(Set.from(scenes).length < scenes.length, 'Scenes count >1');
+    bool hasRepeat = Set.from(scenes).length < scenes.length;
+    assert(hasRepeat, 'Scenes count >1');
+    if (!(hasRepeat)) {
+      throw SceneRepeatException();
+    }
   }
 
   /// 加载新的场景

@@ -1,6 +1,7 @@
 library moengine;
 
 import 'package:flutter/widgets.dart';
+import 'package:moengine/engine/exception/engine_exception.dart';
 import 'package:moengine/engine/module/audio_module.dart';
 import 'package:moengine/engine/module/engine_module.dart';
 import 'package:moengine/engine/module/renderer_module.dart';
@@ -105,6 +106,9 @@ class ModuleManager {
     int repeatModuleCount =
         moduleCount.values.where((int count) => count > 1).length;
     assert(repeatModuleCount == 0, 'repeatModuleCount > 0');
+    if (!(repeatModuleCount == 0)) {
+      throw ModuleRepeatException();
+    }
 
     // 模块装载
     modules?.forEach((EngineModule module) {
@@ -175,6 +179,10 @@ class ModuleManager {
     }
     // 当已经有同类型的模块时需要先移除
     assert(_moduleMap[module.runtimeType] == null, 'Need to be removed first');
+    if (!(_moduleMap[module.runtimeType] == null)) {
+      throw ModuleRepeatException();
+    }
+
     _moduleMap[module.runtimeType] = module;
     // 新添加的模块执行附加动作
     module.onAttach(_moengine);
