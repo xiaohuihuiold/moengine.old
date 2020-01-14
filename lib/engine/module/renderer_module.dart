@@ -115,6 +115,9 @@ class _RenderCanvas extends RenderBox
   /// 画笔
   final Paint _gameObjectPaint = Paint();
 
+  /// 绘制时间
+  int _startTime;
+
   /// 将markNeedsPaint交给渲染模块
   set rendererModule(RendererModule rendererModule) {
     rendererModule?.markNeedsPaint = markNeedsPaint;
@@ -122,9 +125,11 @@ class _RenderCanvas extends RenderBox
   }
 
   _RenderCanvas({
-    rendererModule,
+    RendererModule rendererModule,
     this.sceneModule,
-  });
+  }) {
+    this.rendererModule = rendererModule;
+  }
 
   @override
   void setupParentData(RenderObject child) {
@@ -146,7 +151,11 @@ class _RenderCanvas extends RenderBox
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    sceneModule?.renderScene?.onUpdate();
+    int nowTime = DateTime.now().millisecondsSinceEpoch;
+    _startTime ??= nowTime;
+    int deltaTime = nowTime - _startTime;
+    _startTime = nowTime;
+    sceneModule?.renderScene?.onUpdate(deltaTime);
     // 绘制游戏对象
     List<GameObject> gameObjects = sceneModule?.renderScene?.gameObjects;
     if (gameObjects != null) {
@@ -188,7 +197,7 @@ class _RenderCanvas extends RenderBox
       if (positionComponent == null || spriteComponent == null) {
         // 当绘制的不是精灵,但是有自定义的渲染组件时
         if (canvasComponent != null) {
-          canvasComponent.render(canvas);
+          canvasComponent.render(gameObject, canvas);
         }
         return;
       }
@@ -234,7 +243,7 @@ class _RenderCanvas extends RenderBox
       );
       // 如果是canvas组件,则用户自行渲染
       canvas.translate(position.dx, position.dy);
-      canvasComponent?.render(canvas);
+      canvasComponent?.render(gameObject, canvas);
       canvas.translate(-position.dx, -position.dy);
 
       canvas.restore();

@@ -33,18 +33,20 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final Moengine _moengine = Moengine();
 
-  SceneModule _sceneModule;
-
   @override
   void initState() {
     super.initState();
-    _sceneModule = _moengine.getModule<SceneModule>();
-    _sceneModule.loadScene(TestGameScene());
+    _moengine.getModule<SceneModule>().loadScene(TestGameScene());
+  }
+
+  @override
+  void dispose() {
+    _moengine.destroy();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // TODO: ui结构改变,module没更新
     return Scaffold(
       body: MoengineView(
         moengine: _moengine,
@@ -94,7 +96,7 @@ class TestGameScene extends GameScene with PanDetector {
                 ),
                 ScaleComponent(scale: const Size(1.0, 1.0)),
                 AnchorComponent(anchor: const Offset(0.5, 0.5)),
-                CanvasComponent(render: (Canvas canvas) {
+                CanvasComponent(render: (GameObject gameObject, Canvas canvas) {
                   canvas.drawCircle(
                     Offset.zero,
                     10.0,
@@ -112,7 +114,7 @@ class TestGameScene extends GameScene with PanDetector {
   }
 
   @override
-  void onUpdate() {}
+  void onUpdate(int deltaTime) {}
 
   @override
   void onPanCancel() {}

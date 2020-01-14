@@ -48,7 +48,7 @@ class Moengine {
   }
 
   /// 当引擎被销毁时调用
-  void _onDestroy() {
+  void destroy() {
     moduleManager._onDestroy();
   }
 }
@@ -161,6 +161,10 @@ class ModuleManager {
   /// 用于销毁所有模块
   void _onDestroy() {
     _moduleMap.forEach((_, EngineModule module) => module?.onDestroy());
+    _rendererModule = null;
+    _audioModule = null;
+    _resourceModule = null;
+    _sceneModule = null;
     _moduleMap.clear();
   }
 
@@ -246,20 +250,24 @@ class _MoengineViewState extends State<MoengineView>
   @override
   void initState() {
     super.initState();
+    RendererModule rendererModule =
+        widget.moengine?.getModule<RendererModule>();
+
+    // 更新状态
+    rendererModule?.setState = setState;
 
     // 添加观察者
     WidgetsBinding.instance.addObserver(this);
-
-    // 更新状态
-    widget.moengine?.getModule<RendererModule>()?.setState = setState;
   }
 
   @override
   void dispose() {
-    widget.moengine?.getModule<RendererModule>()?.setState = null;
+    // 不要在这里销毁引擎
+    Moengine moengine = widget.moengine;
+    RendererModule rendererModule = moengine?.getModule<RendererModule>();
 
-    // 引擎销毁
-    widget.moengine?._onDestroy();
+    // 清除状态
+    rendererModule?.setState = null;
 
     // 移除观察者
     WidgetsBinding.instance.removeObserver(this);
@@ -268,16 +276,17 @@ class _MoengineViewState extends State<MoengineView>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    Moengine moengine = widget.moengine;
     // 绑定app生命周期
     switch (state) {
       case AppLifecycleState.resumed:
-        widget.moengine?._onResume();
+        moengine?._onResume();
         break;
       case AppLifecycleState.inactive:
-        widget.moengine?._onPause();
+        moengine?._onPause();
         break;
       case AppLifecycleState.paused:
-        widget.moengine?._onPause();
+        moengine?._onPause();
         break;
       default:
         break;
@@ -302,120 +311,117 @@ class _MoengineViewState extends State<MoengineView>
   @override
   Widget build(BuildContext context) {
     Moengine moengine = widget.moengine;
+    RendererModule rendererModule = moengine?.getModule<RendererModule>();
+    GameScene scene = _scene;
     // 添加帧回调
     WidgetsBinding.instance.addPostFrameCallback(_onUpdated);
-    widget.moengine?.getModule<RendererModule>()?.scaleFactory =
-        MediaQuery.of(context).devicePixelRatio;
+    rendererModule?.scaleFactory = MediaQuery.of(context).devicePixelRatio;
     return MouseRegion(
-      onEnter:
-          _scene is MouseDetector ? (_scene as MouseDetector).onEnter : null,
-      onHover:
-          _scene is MouseDetector ? (_scene as MouseDetector).onHover : null,
-      onExit: _scene is MouseDetector ? (_scene as MouseDetector).onExit : null,
+      onEnter: scene is MouseDetector ? (scene as MouseDetector).onEnter : null,
+      onHover: scene is MouseDetector ? (scene as MouseDetector).onHover : null,
+      onExit: scene is MouseDetector ? (scene as MouseDetector).onExit : null,
       child: GestureDetector(
         // tap
         onTapDown:
-            _scene is TapDetector ? (_scene as TapDetector).onTapDown : null,
-        onTapUp: _scene is TapDetector ? (_scene as TapDetector).onTapUp : null,
-        onTap: _scene is TapDetector ? (_scene as TapDetector).onTap : null,
+            scene is TapDetector ? (scene as TapDetector).onTapDown : null,
+        onTapUp: scene is TapDetector ? (scene as TapDetector).onTapUp : null,
+        onTap: scene is TapDetector ? (scene as TapDetector).onTap : null,
         onTapCancel:
-            _scene is TapDetector ? (_scene as TapDetector).onTapCancel : null,
+            scene is TapDetector ? (scene as TapDetector).onTapCancel : null,
         // secondary
-        onSecondaryTapDown: _scene is SecondaryTapDetector
-            ? (_scene as SecondaryTapDetector).onSecondaryTapDown
+        onSecondaryTapDown: scene is SecondaryTapDetector
+            ? (scene as SecondaryTapDetector).onSecondaryTapDown
             : null,
-        onSecondaryTapUp: _scene is SecondaryTapDetector
-            ? (_scene as SecondaryTapDetector).onSecondaryTapUp
+        onSecondaryTapUp: scene is SecondaryTapDetector
+            ? (scene as SecondaryTapDetector).onSecondaryTapUp
             : null,
-        onSecondaryTapCancel: _scene is SecondaryTapDetector
-            ? (_scene as SecondaryTapDetector).onSecondaryTapCancel
+        onSecondaryTapCancel: scene is SecondaryTapDetector
+            ? (scene as SecondaryTapDetector).onSecondaryTapCancel
             : null,
         // double tap
-        onDoubleTap: _scene is DoubleTapDetector
-            ? (_scene as DoubleTapDetector).onDoubleTap
+        onDoubleTap: scene is DoubleTapDetector
+            ? (scene as DoubleTapDetector).onDoubleTap
             : null,
         // long press
-        onLongPress: _scene is LongPressDetector
-            ? (_scene as LongPressDetector).onLongPress
+        onLongPress: scene is LongPressDetector
+            ? (scene as LongPressDetector).onLongPress
             : null,
-        onLongPressStart: _scene is LongPressDetector
-            ? (_scene as LongPressDetector).onLongPressStart
+        onLongPressStart: scene is LongPressDetector
+            ? (scene as LongPressDetector).onLongPressStart
             : null,
-        onLongPressMoveUpdate: _scene is LongPressDetector
-            ? (_scene as LongPressDetector).onLongPressMoveUpdate
+        onLongPressMoveUpdate: scene is LongPressDetector
+            ? (scene as LongPressDetector).onLongPressMoveUpdate
             : null,
-        onLongPressUp: _scene is LongPressDetector
-            ? (_scene as LongPressDetector).onLongPressUp
+        onLongPressUp: scene is LongPressDetector
+            ? (scene as LongPressDetector).onLongPressUp
             : null,
-        onLongPressEnd: _scene is LongPressDetector
-            ? (_scene as LongPressDetector).onLongPressEnd
+        onLongPressEnd: scene is LongPressDetector
+            ? (scene as LongPressDetector).onLongPressEnd
             : null,
         // vertical drag
-        onVerticalDragDown: _scene is VerticalDragDetector
-            ? (_scene as VerticalDragDetector).onVerticalDragDown
+        onVerticalDragDown: scene is VerticalDragDetector
+            ? (scene as VerticalDragDetector).onVerticalDragDown
             : null,
-        onVerticalDragStart: _scene is VerticalDragDetector
-            ? (_scene as VerticalDragDetector).onVerticalDragStart
+        onVerticalDragStart: scene is VerticalDragDetector
+            ? (scene as VerticalDragDetector).onVerticalDragStart
             : null,
-        onVerticalDragUpdate: _scene is VerticalDragDetector
-            ? (_scene as VerticalDragDetector).onVerticalDragUpdate
+        onVerticalDragUpdate: scene is VerticalDragDetector
+            ? (scene as VerticalDragDetector).onVerticalDragUpdate
             : null,
-        onVerticalDragEnd: _scene is VerticalDragDetector
-            ? (_scene as VerticalDragDetector).onVerticalDragEnd
+        onVerticalDragEnd: scene is VerticalDragDetector
+            ? (scene as VerticalDragDetector).onVerticalDragEnd
             : null,
-        onVerticalDragCancel: _scene is VerticalDragDetector
-            ? (_scene as VerticalDragDetector).onVerticalDragCancel
+        onVerticalDragCancel: scene is VerticalDragDetector
+            ? (scene as VerticalDragDetector).onVerticalDragCancel
             : null,
         // horizontal drag
-        onHorizontalDragDown: _scene is HorizontalDragDetector
-            ? (_scene as HorizontalDragDetector).onHorizontalDragDown
+        onHorizontalDragDown: scene is HorizontalDragDetector
+            ? (scene as HorizontalDragDetector).onHorizontalDragDown
             : null,
-        onHorizontalDragStart: _scene is HorizontalDragDetector
-            ? (_scene as HorizontalDragDetector).onHorizontalDragStart
+        onHorizontalDragStart: scene is HorizontalDragDetector
+            ? (scene as HorizontalDragDetector).onHorizontalDragStart
             : null,
-        onHorizontalDragUpdate: _scene is HorizontalDragDetector
-            ? (_scene as HorizontalDragDetector).onHorizontalDragUpdate
+        onHorizontalDragUpdate: scene is HorizontalDragDetector
+            ? (scene as HorizontalDragDetector).onHorizontalDragUpdate
             : null,
-        onHorizontalDragEnd: _scene is HorizontalDragDetector
-            ? (_scene as HorizontalDragDetector).onHorizontalDragEnd
+        onHorizontalDragEnd: scene is HorizontalDragDetector
+            ? (scene as HorizontalDragDetector).onHorizontalDragEnd
             : null,
-        onHorizontalDragCancel: _scene is HorizontalDragDetector
-            ? (_scene as HorizontalDragDetector).onHorizontalDragCancel
+        onHorizontalDragCancel: scene is HorizontalDragDetector
+            ? (scene as HorizontalDragDetector).onHorizontalDragCancel
             : null,
         // force press
-        onForcePressStart: _scene is ForcePressDetector
-            ? (_scene as ForcePressDetector).onForcePressStart
+        onForcePressStart: scene is ForcePressDetector
+            ? (scene as ForcePressDetector).onForcePressStart
             : null,
-        onForcePressPeak: _scene is ForcePressDetector
-            ? (_scene as ForcePressDetector).onForcePressPeak
+        onForcePressPeak: scene is ForcePressDetector
+            ? (scene as ForcePressDetector).onForcePressPeak
             : null,
-        onForcePressUpdate: _scene is ForcePressDetector
-            ? (_scene as ForcePressDetector).onForcePressUpdate
+        onForcePressUpdate: scene is ForcePressDetector
+            ? (scene as ForcePressDetector).onForcePressUpdate
             : null,
-        onForcePressEnd: _scene is ForcePressDetector
-            ? (_scene as ForcePressDetector).onForcePressEnd
+        onForcePressEnd: scene is ForcePressDetector
+            ? (scene as ForcePressDetector).onForcePressEnd
             : null,
         // pan
         onPanDown:
-            _scene is PanDetector ? (_scene as PanDetector).onPanDown : null,
+            scene is PanDetector ? (scene as PanDetector).onPanDown : null,
         onPanStart:
-            _scene is PanDetector ? (_scene as PanDetector).onPanStart : null,
+            scene is PanDetector ? (scene as PanDetector).onPanStart : null,
         onPanUpdate:
-            _scene is PanDetector ? (_scene as PanDetector).onPanUpdate : null,
-        onPanEnd:
-            _scene is PanDetector ? (_scene as PanDetector).onPanEnd : null,
+            scene is PanDetector ? (scene as PanDetector).onPanUpdate : null,
+        onPanEnd: scene is PanDetector ? (scene as PanDetector).onPanEnd : null,
         onPanCancel:
-            _scene is PanDetector ? (_scene as PanDetector).onPanCancel : null,
+            scene is PanDetector ? (scene as PanDetector).onPanCancel : null,
         // scale
-        onScaleStart: _scene is ScaleDetector
-            ? (_scene as ScaleDetector).onScaleStart
+        onScaleStart: scene is ScaleDetector
+            ? (scene as ScaleDetector).onScaleStart
             : null,
-        onScaleUpdate: _scene is ScaleDetector
-            ? (_scene as ScaleDetector).onScaleUpdate
+        onScaleUpdate: scene is ScaleDetector
+            ? (scene as ScaleDetector).onScaleUpdate
             : null,
-        onScaleEnd: _scene is ScaleDetector
-            ? (_scene as ScaleDetector).onScaleEnd
-            : null,
+        onScaleEnd:
+            scene is ScaleDetector ? (scene as ScaleDetector).onScaleEnd : null,
         behavior: HitTestBehavior.opaque,
         child: moengine?.renderGameView(),
       ),

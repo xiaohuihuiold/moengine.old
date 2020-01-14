@@ -74,7 +74,7 @@ abstract class GameScene {
   }
 
   /// 游戏画面的更新
-  void onUpdate();
+  void onUpdate(int deltaTime);
 
   /// 场景被暂停/移入后台
   ///

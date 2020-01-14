@@ -58,7 +58,7 @@ class SpriteComponent extends GameComponent {
 
 /// 自定义绘制组件
 class CanvasComponent extends GameComponent {
-  Function(Canvas canvas) render;
+  Function(GameObject gameObject, Canvas canvas) render;
 
   CanvasComponent({this.render});
 }
