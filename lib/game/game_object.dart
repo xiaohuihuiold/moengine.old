@@ -79,7 +79,7 @@ class GameObject {
     assert(componentMap[component.runtimeType] == null,
         'Need to be removed first');
     if (!(componentMap[component.runtimeType] == null)) {
-      throw ElementRepeatException();
+      return false;
     }
     componentMap[component.runtimeType] = component;
     component.gameObject = this;

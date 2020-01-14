@@ -107,7 +107,7 @@ class ModuleManager {
         moduleCount.values.where((int count) => count > 1).length;
     assert(repeatModuleCount == 0, 'repeatModuleCount > 0');
     if (!(repeatModuleCount == 0)) {
-      throw ModuleRepeatException();
+      throw ElementRepeatException();
     }
 
     // 模块装载
@@ -180,7 +180,7 @@ class ModuleManager {
     // 当已经有同类型的模块时需要先移除
     assert(_moduleMap[module.runtimeType] == null, 'Need to be removed first');
     if (!(_moduleMap[module.runtimeType] == null)) {
-      throw ModuleRepeatException();
+      throw ElementRepeatException();
     }
 
     _moduleMap[module.runtimeType] = module;

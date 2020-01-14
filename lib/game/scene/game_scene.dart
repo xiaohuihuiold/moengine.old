@@ -1,8 +1,10 @@
 import 'package:flutter/gestures.dart';
 import 'package:meta/meta.dart';
 import 'package:flutter/widgets.dart';
+import 'package:moengine/engine/exception/engine_exception.dart';
 import 'package:moengine/engine/module/renderer_module.dart';
 import 'package:moengine/engine/module/scene_module.dart';
+import 'package:moengine/game/component/game_component.dart';
 import 'package:moengine/game/game_object.dart';
 import 'package:moengine/moengine.dart';
 
@@ -40,6 +42,42 @@ abstract class GameScene {
 
   GameScene() {
     gameObjects = List();
+  }
+
+  /// 创建游戏对象
+  @protected
+  GameObject createObject([List<GameComponent> components]) {
+    return GameObject(components);
+  }
+
+  /// 添加游戏对象
+  @protected
+  bool addGameObject(GameObject gameObject) {
+    if (gameObject == null) {
+      return false;
+    }
+    if (gameObjects.contains(gameObject)) {
+      throw ElementRepeatException();
+    }
+    gameObjects.add(gameObject);
+    return true;
+  }
+
+  /// 移除游戏对象
+  @protected
+  bool removeGameObject(GameObject gameObject) {
+    gameObjects.remove(gameObject);
+    return true;
+  }
+
+  /// 根据下标移除游戏对象
+  @protected
+  bool removeGameObjectAt(int index) {
+    if (index < 0 || index > gameObjects.length - 1) {
+      return false;
+    }
+    gameObjects.removeAt(index);
+    return true;
   }
 
   /// 更新

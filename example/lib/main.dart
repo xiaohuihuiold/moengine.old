@@ -98,8 +98,8 @@ class TestGameScene extends GameScene with PanDetector {
             RaisedButton(
               child: const Text('Init'),
               onPressed: () async {
-                gameObjects.remove(flutterObject);
-                flutterObject = GameObject(
+                removeGameObject(flutterObject);
+                flutterObject = createObject(
                   [
                     SpriteComponent(
                       image: await _loadImage('assets/images/flutter.png'),
@@ -111,9 +111,6 @@ class TestGameScene extends GameScene with PanDetector {
                     SizeComponent(size: const Size(100.0, 100.0)),
                     ScaleComponent(scale: const Size(1.0, 1.0)),
                     AnchorComponent(anchor: const Offset(0.5, 0.5)),
-                    TransformComponent(
-                      transform: Matrix4.identity().storage,
-                    ),
                     RenderComponent(render:
                         (GameObject gameObject, Canvas canvas, Paint paint) {
                       canvas.drawCircle(
@@ -124,7 +121,7 @@ class TestGameScene extends GameScene with PanDetector {
                     }),
                   ],
                 );
-                gameObjects.add(flutterObject);
+                addGameObject(flutterObject);
                 update();
               },
             ),

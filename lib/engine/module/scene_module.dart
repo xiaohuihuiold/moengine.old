@@ -37,7 +37,7 @@ class SceneModule extends EngineModule {
     bool hasRepeat = Set.from(scenes).length < scenes.length;
     assert(hasRepeat, 'Scenes count >1');
     if (!(hasRepeat)) {
-      throw SceneRepeatException();
+      throw ElementRepeatException();
     }
   }
 
