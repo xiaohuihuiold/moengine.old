@@ -110,7 +110,7 @@ class TestGameScene extends GameScene with PanDetector {
                         SpriteComponent(
                           image: await _loadImage('assets/images/flutter.png'),
                         ),
-                        ClipComponent(),
+                        ClipComponent(clipShape: ClipShape.circle),
                         PositionComponent(
                           position: Offset(size.width / 2.0, size.height / 1.5),
                         ),
@@ -119,6 +119,7 @@ class TestGameScene extends GameScene with PanDetector {
                         AnchorComponent(anchor: const Offset(0.5, 0.5)),
                         RenderComponent(render: (GameObject gameObject,
                             Canvas canvas, Paint paint) {
+                          canvas.drawPaint(Paint()..color=Colors.pink.withOpacity(0.2));
                           canvas.drawCircle(
                             const Offset(50.0, 50.0),
                             10.0,

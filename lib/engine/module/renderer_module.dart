@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:flutter/rendering.dart';
@@ -280,7 +281,19 @@ class _RenderCanvas extends RenderBox
 
       // 执行裁剪
       if (clipComponent != null) {
-        canvas.clipRect(dst);
+        Radius radius = Radius.zero;
+        switch (clipComponent.clipShape) {
+          case ClipShape.rect:
+            break;
+          case ClipShape.roundRect:
+            radius = clipComponent.radius ?? Radius.zero;
+            break;
+          case ClipShape.circle:
+            radius =
+                Radius.circular(max<double>(size.width, size.height) / 2.0);
+            break;
+        }
+        canvas.clipRRect(RRect.fromRectAndRadius(dst, radius));
       }
       // 绘制精灵
       if (spriteComponent != null && spriteComponent.image != null) {

@@ -75,10 +75,18 @@ class PaintComponent extends GameComponent {
   PaintComponent({this.paint});
 }
 
+/// 裁剪形状
+enum ClipShape { rect, roundRect, circle }
+
 /// 裁剪组件
 ///
 /// 按对象尺寸裁剪
-class ClipComponent extends GameComponent {}
+class ClipComponent extends GameComponent {
+  ClipShape clipShape;
+  Radius radius;
+
+  ClipComponent({this.clipShape, this.radius});
+}
 
 /// 变换组件
 ///
