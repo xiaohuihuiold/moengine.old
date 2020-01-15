@@ -23,6 +23,9 @@ abstract class GameScene {
   /// 当前场景游戏对象
   List<GameObject> gameObjects;
 
+  /// 游戏对象数量
+  int get gameObjectLength => gameObjects.length;
+
   /// 引擎对象
   @protected
   Moengine moengine;
@@ -73,7 +76,7 @@ abstract class GameScene {
   /// 根据下标移除游戏对象
   @protected
   bool removeGameObjectAt(int index) {
-    if (index < 0 || index > gameObjects.length - 1) {
+    if (index < 0 || index > gameObjectLength - 1) {
       return false;
     }
     gameObjects.removeAt(index);
@@ -84,6 +87,15 @@ abstract class GameScene {
   @protected
   void clearGameObject() {
     gameObjects.clear();
+  }
+
+  /// 获取游戏对象
+  @protected
+  GameObject getGameObjectAt(int index) {
+    if (index < 0 || index > gameObjectLength - 1) {
+      return null;
+    }
+    return gameObjects[index];
   }
 
   /// 更新

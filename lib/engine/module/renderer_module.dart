@@ -188,30 +188,30 @@ class _RenderCanvas extends RenderBox
         return;
       }
       Paint drawPaint = _gameObjectPaint;
-      // 取得所有组件
-      AnchorComponent anchorComponent = componentMap[AnchorComponent];
-      ScaleComponent scaleComponent = componentMap[ScaleComponent];
-      Rotate2DComponent rotate2dComponent = componentMap[Rotate2DComponent];
-      SpriteComponent spriteComponent = componentMap[SpriteComponent];
-      SizeComponent sizeComponent = componentMap[SizeComponent];
-      PositionComponent positionComponent = componentMap[PositionComponent];
-      RenderComponent canvasComponent = componentMap[RenderComponent];
-      ClipComponent clipComponent = componentMap[ClipComponent];
-      TransformComponent transformComponent = componentMap[TransformComponent];
+
       PaintComponent paintComponent = componentMap[PaintComponent];
 
       // 设置自定义画笔
       if (paintComponent != null) {
         drawPaint = paintComponent.paint;
       }
+      PositionComponent positionComponent = componentMap[PositionComponent];
       // 没有坐标的物体不绘制
-      if (positionComponent == null) {
+      if (positionComponent == null || positionComponent.position == null) {
         return;
       }
+      SpriteComponent spriteComponent = componentMap[SpriteComponent];
+      SizeComponent sizeComponent = componentMap[SizeComponent];
       // 不是精灵并且也没有大小的物体也不进行绘制
       if (spriteComponent == null && sizeComponent == null) {
         return;
       }
+      AnchorComponent anchorComponent = componentMap[AnchorComponent];
+      ScaleComponent scaleComponent = componentMap[ScaleComponent];
+      Rotate2DComponent rotate2dComponent = componentMap[Rotate2DComponent];
+      RenderComponent canvasComponent = componentMap[RenderComponent];
+      ClipComponent clipComponent = componentMap[ClipComponent];
+      TransformComponent transformComponent = componentMap[TransformComponent];
 
       // 绘制坐标
       Offset position = positionComponent.position;
