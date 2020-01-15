@@ -305,13 +305,20 @@ class _MoengineViewState extends State<MoengineView>
   ///
   /// 主要是检测绘制区域变化
   void _onUpdated(Duration timeStamp) {
+    RenderBox renderBox = context.findRenderObject();
     Moengine moengine = widget.moengine;
-    moengine?._onResize(_widgetSize);
+    // 检测大小是否改变
+    Size renderSize = renderBox.size;
+    if (_widgetSize != renderSize) {
+      _widgetSize = renderSize;
+      moengine?._onResize(_widgetSize);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    RenderBox renderBox = context.findRenderObject();
+    // 添加帧回调
+    WidgetsBinding.instance.addPostFrameCallback(_onUpdated);
     Moengine moengine = widget.moengine;
     // 获取模块
     RendererModule rendererModule = moengine?.getModule<RendererModule>();
@@ -321,13 +328,6 @@ class _MoengineViewState extends State<MoengineView>
     // 设置缩放
     rendererModule?.scaleFactory = MediaQuery.of(context).devicePixelRatio;
 
-    // 检测大小是否改变
-    Size renderSize = renderBox.size;
-    if (_widgetSize != renderSize) {
-      _widgetSize = renderSize;
-      // 添加帧回调
-      WidgetsBinding.instance.addPostFrameCallback(_onUpdated);
-    }
     return WillPopScope(
       onWillPop: () async {
         if (!widget.interceptPop) {
