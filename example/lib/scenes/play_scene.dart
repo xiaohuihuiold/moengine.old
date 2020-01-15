@@ -1,27 +1,60 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/src/gestures/events.dart';
 import 'package:moengine/game/component/game_component.dart';
+import 'package:moengine/game/game_object.dart';
 import 'package:moengine/game/scene/game_scene.dart';
 import 'package:moengine/moengine.dart';
 
-class PlayScene extends GameScene {
+class PlayScene extends GameScene with PanDetector {
+  Timer _timer;
+
   @override
   void onAttach(Moengine moengine) {
     super.onAttach(moengine);
     print('PlayScene.onAttach');
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 8; i++) {
       addGameObject(createObject([
-        PositionComponent(position: Offset(i * 50.0, i * 50.0)),
+        ClipComponent(
+          clipShape: ClipShape.roundRect,
+          radius: const Radius.circular(8.0),
+        ),
+        PositionComponent(
+          position: Offset(size.width / 2.0, size.height / 2.0),
+        ),
         SizeComponent(size: const Size(50.0, 50.0)),
+        AnchorComponent(anchor: const Offset(0.5, 0.5)),
+        Rotate2DComponent(radians: (i + 1.0) / 8.0 * pi),
         RenderComponent(render: (_, Canvas canvas, Paint paint) {
+          canvas.drawPaint(Paint()..color = Colors.pink.withOpacity(0.1));
           canvas.drawCircle(
             const Offset(25.0, 25.0),
             12.5,
-            paint..color = Colors.pink,
+            paint..color = Colors.pink.withOpacity(0.05),
           );
         }),
       ]));
     }
+    _startAnimation();
+  }
+
+  void _startAnimation() {
+    _timer = Timer.periodic(const Duration(milliseconds: 1), (_) {
+      for (int i = 0; i < gameObjectLength; i++) {
+        GameObject gameObject = getGameObjectAt(i);
+        if (i % 2 == 0) {
+          gameObject.getComponent<Rotate2DComponent>().radians +=
+              sin((i + 1.0) / gameObjectLength * 2.0) * 0.005;
+        } else {
+          gameObject.getComponent<Rotate2DComponent>().radians -=
+              sin((i + 1.0) / gameObjectLength * 2.0) * 0.005;
+        }
+      }
+      update();
+    });
   }
 
   @override
@@ -31,19 +64,34 @@ class PlayScene extends GameScene {
 
   @override
   void onPause() {
-    super.onPause();
     print('PlayScene.onPause');
+    _timer?.cancel();
+    super.onPause();
   }
 
   @override
   void onResume() {
     super.onResume();
     print('PlayScene.onResume');
+    _startAnimation();
   }
 
   @override
   void onDestroy() {
-    super.onDestroy();
     print('PlayScene.onDestroy');
+    _timer?.cancel();
+    super.onDestroy();
+  }
+
+  @override
+  void onPanUpdate(DragUpdateDetails details) {
+    for (int i = 0; i < gameObjectLength; i++) {
+      GameObject gameObject = getGameObjectAt(i);
+      PositionComponent positionComponent =
+          gameObject.getComponent<PositionComponent>();
+      positionComponent.position =
+          Offset(details.localPosition.dx, details.localPosition.dy);
+    }
+    update();
   }
 }
