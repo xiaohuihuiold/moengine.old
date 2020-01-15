@@ -113,7 +113,7 @@ abstract class GameScene {
   }
 
   /// 构建ui
-  List<Widget> onBuildUi() {
+  List<Widget> onBuildUi(BuildContext context) {
     return null;
   }
 

@@ -48,7 +48,7 @@ abstract class RendererModule extends EngineModule {
 
   /// 渲染游戏画面
   @mustCallSuper
-  Widget render();
+  Widget render(BuildContext context);
 }
 
 /// Canvas方式的渲染器
@@ -57,9 +57,9 @@ abstract class RendererModule extends EngineModule {
 /// 使用flutter渲染ui
 class CanvasRendererModule extends RendererModule {
   @override
-  Widget render() {
+  Widget render(BuildContext context) {
     return _CanvasRenderWidget(
-      gameUi: sceneModule?.renderScene?.onBuildUi(),
+      gameUi: sceneModule?.renderScene?.onBuildUi(context),
       sceneModule: sceneModule,
       rendererModule: this,
     );

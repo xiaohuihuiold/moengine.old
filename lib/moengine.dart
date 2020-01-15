@@ -23,8 +23,8 @@ class Moengine {
   }
 
   /// 构建游戏视图
-  Widget renderGameView() {
-    return getModule<RendererModule>()?.render();
+  Widget renderGameView(BuildContext context) {
+    return getModule<RendererModule>()?.render(context);
   }
 
   /// 获取模块
@@ -238,9 +238,13 @@ class MoengineView extends StatefulWidget {
   /// 引擎对象
   final Moengine moengine;
 
+  /// 是否拦截pop
+  final bool interceptPop;
+
   const MoengineView({
     Key key,
     @required this.moengine,
+    this.interceptPop = true,
   }) : super(key: key);
 
   @override
@@ -250,9 +254,6 @@ class MoengineView extends StatefulWidget {
 class _MoengineViewState extends State<MoengineView>
     with WidgetsBindingObserver {
   Size _widgetSize;
-
-  GameScene get _scene =>
-      widget.moengine?.getModule<SceneModule>()?.renderScene;
 
   @override
   void initState() {
@@ -319,118 +320,136 @@ class _MoengineViewState extends State<MoengineView>
   Widget build(BuildContext context) {
     Moengine moengine = widget.moengine;
     RendererModule rendererModule = moengine?.getModule<RendererModule>();
-    GameScene scene = _scene;
+    SceneModule sceneModule = moengine?.getModule<SceneModule>();
+    GameScene scene = sceneModule?.renderScene;
     // 添加帧回调
     WidgetsBinding.instance.addPostFrameCallback(_onUpdated);
     rendererModule?.scaleFactory = MediaQuery.of(context).devicePixelRatio;
-    return MouseRegion(
-      onEnter: scene is MouseDetector ? (scene as MouseDetector).onEnter : null,
-      onHover: scene is MouseDetector ? (scene as MouseDetector).onHover : null,
-      onExit: scene is MouseDetector ? (scene as MouseDetector).onExit : null,
-      child: GestureDetector(
-        // tap
-        onTapDown:
-            scene is TapDetector ? (scene as TapDetector).onTapDown : null,
-        onTapUp: scene is TapDetector ? (scene as TapDetector).onTapUp : null,
-        onTap: scene is TapDetector ? (scene as TapDetector).onTap : null,
-        onTapCancel:
-            scene is TapDetector ? (scene as TapDetector).onTapCancel : null,
-        // secondary
-        onSecondaryTapDown: scene is SecondaryTapDetector
-            ? (scene as SecondaryTapDetector).onSecondaryTapDown
-            : null,
-        onSecondaryTapUp: scene is SecondaryTapDetector
-            ? (scene as SecondaryTapDetector).onSecondaryTapUp
-            : null,
-        onSecondaryTapCancel: scene is SecondaryTapDetector
-            ? (scene as SecondaryTapDetector).onSecondaryTapCancel
-            : null,
-        // double tap
-        onDoubleTap: scene is DoubleTapDetector
-            ? (scene as DoubleTapDetector).onDoubleTap
-            : null,
-        // long press
-        onLongPress: scene is LongPressDetector
-            ? (scene as LongPressDetector).onLongPress
-            : null,
-        onLongPressStart: scene is LongPressDetector
-            ? (scene as LongPressDetector).onLongPressStart
-            : null,
-        onLongPressMoveUpdate: scene is LongPressDetector
-            ? (scene as LongPressDetector).onLongPressMoveUpdate
-            : null,
-        onLongPressUp: scene is LongPressDetector
-            ? (scene as LongPressDetector).onLongPressUp
-            : null,
-        onLongPressEnd: scene is LongPressDetector
-            ? (scene as LongPressDetector).onLongPressEnd
-            : null,
-        // vertical drag
-        onVerticalDragDown: scene is VerticalDragDetector
-            ? (scene as VerticalDragDetector).onVerticalDragDown
-            : null,
-        onVerticalDragStart: scene is VerticalDragDetector
-            ? (scene as VerticalDragDetector).onVerticalDragStart
-            : null,
-        onVerticalDragUpdate: scene is VerticalDragDetector
-            ? (scene as VerticalDragDetector).onVerticalDragUpdate
-            : null,
-        onVerticalDragEnd: scene is VerticalDragDetector
-            ? (scene as VerticalDragDetector).onVerticalDragEnd
-            : null,
-        onVerticalDragCancel: scene is VerticalDragDetector
-            ? (scene as VerticalDragDetector).onVerticalDragCancel
-            : null,
-        // horizontal drag
-        onHorizontalDragDown: scene is HorizontalDragDetector
-            ? (scene as HorizontalDragDetector).onHorizontalDragDown
-            : null,
-        onHorizontalDragStart: scene is HorizontalDragDetector
-            ? (scene as HorizontalDragDetector).onHorizontalDragStart
-            : null,
-        onHorizontalDragUpdate: scene is HorizontalDragDetector
-            ? (scene as HorizontalDragDetector).onHorizontalDragUpdate
-            : null,
-        onHorizontalDragEnd: scene is HorizontalDragDetector
-            ? (scene as HorizontalDragDetector).onHorizontalDragEnd
-            : null,
-        onHorizontalDragCancel: scene is HorizontalDragDetector
-            ? (scene as HorizontalDragDetector).onHorizontalDragCancel
-            : null,
-        // force press
-        onForcePressStart: scene is ForcePressDetector
-            ? (scene as ForcePressDetector).onForcePressStart
-            : null,
-        onForcePressPeak: scene is ForcePressDetector
-            ? (scene as ForcePressDetector).onForcePressPeak
-            : null,
-        onForcePressUpdate: scene is ForcePressDetector
-            ? (scene as ForcePressDetector).onForcePressUpdate
-            : null,
-        onForcePressEnd: scene is ForcePressDetector
-            ? (scene as ForcePressDetector).onForcePressEnd
-            : null,
-        // pan
-        onPanDown:
-            scene is PanDetector ? (scene as PanDetector).onPanDown : null,
-        onPanStart:
-            scene is PanDetector ? (scene as PanDetector).onPanStart : null,
-        onPanUpdate:
-            scene is PanDetector ? (scene as PanDetector).onPanUpdate : null,
-        onPanEnd: scene is PanDetector ? (scene as PanDetector).onPanEnd : null,
-        onPanCancel:
-            scene is PanDetector ? (scene as PanDetector).onPanCancel : null,
-        // scale
-        onScaleStart: scene is ScaleDetector
-            ? (scene as ScaleDetector).onScaleStart
-            : null,
-        onScaleUpdate: scene is ScaleDetector
-            ? (scene as ScaleDetector).onScaleUpdate
-            : null,
-        onScaleEnd:
-            scene is ScaleDetector ? (scene as ScaleDetector).onScaleEnd : null,
-        behavior: HitTestBehavior.deferToChild,
-        child: moengine?.renderGameView(),
+    return WillPopScope(
+      onWillPop: () async {
+        if (!widget.interceptPop) {
+          return true;
+        }
+        // 移除前面的场景
+        if ((sceneModule?.sceneLength ?? 0) > 1) {
+          sceneModule.removeTopScene();
+          return false;
+        }
+        return true;
+      },
+      child: MouseRegion(
+        onEnter:
+            scene is MouseDetector ? (scene as MouseDetector).onEnter : null,
+        onHover:
+            scene is MouseDetector ? (scene as MouseDetector).onHover : null,
+        onExit: scene is MouseDetector ? (scene as MouseDetector).onExit : null,
+        child: GestureDetector(
+          // tap
+          onTapDown:
+              scene is TapDetector ? (scene as TapDetector).onTapDown : null,
+          onTapUp: scene is TapDetector ? (scene as TapDetector).onTapUp : null,
+          onTap: scene is TapDetector ? (scene as TapDetector).onTap : null,
+          onTapCancel:
+              scene is TapDetector ? (scene as TapDetector).onTapCancel : null,
+          // secondary
+          onSecondaryTapDown: scene is SecondaryTapDetector
+              ? (scene as SecondaryTapDetector).onSecondaryTapDown
+              : null,
+          onSecondaryTapUp: scene is SecondaryTapDetector
+              ? (scene as SecondaryTapDetector).onSecondaryTapUp
+              : null,
+          onSecondaryTapCancel: scene is SecondaryTapDetector
+              ? (scene as SecondaryTapDetector).onSecondaryTapCancel
+              : null,
+          // double tap
+          onDoubleTap: scene is DoubleTapDetector
+              ? (scene as DoubleTapDetector).onDoubleTap
+              : null,
+          // long press
+          onLongPress: scene is LongPressDetector
+              ? (scene as LongPressDetector).onLongPress
+              : null,
+          onLongPressStart: scene is LongPressDetector
+              ? (scene as LongPressDetector).onLongPressStart
+              : null,
+          onLongPressMoveUpdate: scene is LongPressDetector
+              ? (scene as LongPressDetector).onLongPressMoveUpdate
+              : null,
+          onLongPressUp: scene is LongPressDetector
+              ? (scene as LongPressDetector).onLongPressUp
+              : null,
+          onLongPressEnd: scene is LongPressDetector
+              ? (scene as LongPressDetector).onLongPressEnd
+              : null,
+          // vertical drag
+          onVerticalDragDown: scene is VerticalDragDetector
+              ? (scene as VerticalDragDetector).onVerticalDragDown
+              : null,
+          onVerticalDragStart: scene is VerticalDragDetector
+              ? (scene as VerticalDragDetector).onVerticalDragStart
+              : null,
+          onVerticalDragUpdate: scene is VerticalDragDetector
+              ? (scene as VerticalDragDetector).onVerticalDragUpdate
+              : null,
+          onVerticalDragEnd: scene is VerticalDragDetector
+              ? (scene as VerticalDragDetector).onVerticalDragEnd
+              : null,
+          onVerticalDragCancel: scene is VerticalDragDetector
+              ? (scene as VerticalDragDetector).onVerticalDragCancel
+              : null,
+          // horizontal drag
+          onHorizontalDragDown: scene is HorizontalDragDetector
+              ? (scene as HorizontalDragDetector).onHorizontalDragDown
+              : null,
+          onHorizontalDragStart: scene is HorizontalDragDetector
+              ? (scene as HorizontalDragDetector).onHorizontalDragStart
+              : null,
+          onHorizontalDragUpdate: scene is HorizontalDragDetector
+              ? (scene as HorizontalDragDetector).onHorizontalDragUpdate
+              : null,
+          onHorizontalDragEnd: scene is HorizontalDragDetector
+              ? (scene as HorizontalDragDetector).onHorizontalDragEnd
+              : null,
+          onHorizontalDragCancel: scene is HorizontalDragDetector
+              ? (scene as HorizontalDragDetector).onHorizontalDragCancel
+              : null,
+          // force press
+          onForcePressStart: scene is ForcePressDetector
+              ? (scene as ForcePressDetector).onForcePressStart
+              : null,
+          onForcePressPeak: scene is ForcePressDetector
+              ? (scene as ForcePressDetector).onForcePressPeak
+              : null,
+          onForcePressUpdate: scene is ForcePressDetector
+              ? (scene as ForcePressDetector).onForcePressUpdate
+              : null,
+          onForcePressEnd: scene is ForcePressDetector
+              ? (scene as ForcePressDetector).onForcePressEnd
+              : null,
+          // pan
+          onPanDown:
+              scene is PanDetector ? (scene as PanDetector).onPanDown : null,
+          onPanStart:
+              scene is PanDetector ? (scene as PanDetector).onPanStart : null,
+          onPanUpdate:
+              scene is PanDetector ? (scene as PanDetector).onPanUpdate : null,
+          onPanEnd:
+              scene is PanDetector ? (scene as PanDetector).onPanEnd : null,
+          onPanCancel:
+              scene is PanDetector ? (scene as PanDetector).onPanCancel : null,
+          // scale
+          onScaleStart: scene is ScaleDetector
+              ? (scene as ScaleDetector).onScaleStart
+              : null,
+          onScaleUpdate: scene is ScaleDetector
+              ? (scene as ScaleDetector).onScaleUpdate
+              : null,
+          onScaleEnd: scene is ScaleDetector
+              ? (scene as ScaleDetector).onScaleEnd
+              : null,
+          behavior: HitTestBehavior.deferToChild,
+          child: moengine?.renderGameView(context),
+        ),
       ),
     );
   }

@@ -66,7 +66,7 @@ class SceneModule extends EngineModule {
       _scenes.removeAt(sceneIndex);
       _scenes.add(tempScene);
       // 恢复场景
-      tempScene.onResume();
+      tempScene?.onResume();
       rendererModule?.updateState();
       return true;
     }
@@ -103,6 +103,15 @@ class SceneModule extends EngineModule {
     scene.onDestroy();
     rendererModule?.updateState();
     return true;
+  }
+
+  /// 移除所有场景
+  void clearScene() {
+    _scenes.forEach((GameScene scene) {
+      scene?.onDestroy();
+    });
+    _scenes.clear();
+    rendererModule?.updateState();
   }
 
   /// 获取指定下标的场景
