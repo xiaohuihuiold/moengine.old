@@ -89,7 +89,7 @@ class StartScene extends GameScene {
 
   @override
   void onUpdate(int deltaTime) {
-    print('StartScene.onUpdate($deltaTime)');
+    // print('StartScene.onUpdate($deltaTime)');
   }
 
   @override

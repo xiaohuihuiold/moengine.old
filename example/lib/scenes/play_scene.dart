@@ -59,7 +59,7 @@ class PlayScene extends GameScene with PanDetector {
 
   @override
   void onUpdate(int deltaTime) {
-    print('PlayScene.onUpdate($deltaTime)');
+    // print('PlayScene.onUpdate($deltaTime)');
   }
 
   @override
