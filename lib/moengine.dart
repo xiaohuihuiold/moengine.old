@@ -313,9 +313,12 @@ class _MoengineViewState extends State<MoengineView>
   Widget build(BuildContext context) {
     RenderBox renderBox = context.findRenderObject();
     Moengine moengine = widget.moengine;
+    // 获取模块
     RendererModule rendererModule = moengine?.getModule<RendererModule>();
     SceneModule sceneModule = moengine?.getModule<SceneModule>();
+
     GameScene scene = sceneModule?.renderScene;
+    // 设置缩放
     rendererModule?.scaleFactory = MediaQuery.of(context).devicePixelRatio;
 
     // 检测大小是否改变
