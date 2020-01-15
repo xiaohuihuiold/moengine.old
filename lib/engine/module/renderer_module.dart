@@ -312,8 +312,21 @@ class _RenderCanvas extends RenderBox
   }
 
   @override
-  bool hitTestChildren(BoxHitTestResult result, {Offset position}) {
-    // TODO: 点击测试修复
+  bool hitTest(BoxHitTestResult result, {ui.Offset position}) {
+    if (size.contains(position)) {
+      // 触发child事件则不对当前事件处理
+      if (hitTestChildren(result, position: position)) {
+        return false;
+      } else if (hitTestSelf(position)) {
+        result.add(BoxHitTestEntry(this, position));
+      }
+      return true;
+    }
+    return false;
+  }
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {ui.Offset position}) {
     return defaultHitTestChildren(result, position: position);
   }
 }

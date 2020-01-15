@@ -81,11 +81,10 @@ class TestGameScene extends GameScene with PanDetector {
   List<Widget> onBuildUi() {
     return [
       GestureDetector(
-        onTap: (){},
+        onTap: () {},
         child: Container(
           width: double.infinity,
           height: double.infinity,
-          color: Colors.red.withOpacity(0.2),
           child: Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -93,7 +92,8 @@ class TestGameScene extends GameScene with PanDetector {
                 RaisedButton(
                   child: const Text('Rotate'),
                   onPressed: () {
-                    if (flutterObject.getComponent<Rotate2DComponent>() != null) {
+                    if (flutterObject.getComponent<Rotate2DComponent>() !=
+                        null) {
                       flutterObject.removeComponent(Rotate2DComponent);
                     } else {
                       flutterObject.addComponent(
@@ -117,8 +117,8 @@ class TestGameScene extends GameScene with PanDetector {
                         SizeComponent(size: const Size(100.0, 100.0)),
                         ScaleComponent(scale: const Size(1.0, 1.0)),
                         AnchorComponent(anchor: const Offset(0.5, 0.5)),
-                        RenderComponent(render:
-                            (GameObject gameObject, Canvas canvas, Paint paint) {
+                        RenderComponent(render: (GameObject gameObject,
+                            Canvas canvas, Paint paint) {
                           canvas.drawCircle(
                             const Offset(50.0, 50.0),
                             10.0,
@@ -146,7 +146,16 @@ class TestGameScene extends GameScene with PanDetector {
   void onPanCancel() {}
 
   @override
-  void onPanDown(DragDownDetails details) {}
+  void onPanDown(DragDownDetails details) {
+    Offset position = details.localPosition;
+    if (flutterObject == null) {
+      return;
+    }
+    PositionComponent positionComponent =
+        flutterObject.getComponent<PositionComponent>();
+    positionComponent.position = Offset(position.dx, position.dy);
+    update();
+  }
 
   @override
   void onPanEnd(DragEndDetails details) {}

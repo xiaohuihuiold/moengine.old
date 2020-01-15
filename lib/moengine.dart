@@ -429,7 +429,7 @@ class _MoengineViewState extends State<MoengineView>
             : null,
         onScaleEnd:
             scene is ScaleDetector ? (scene as ScaleDetector).onScaleEnd : null,
-        behavior: HitTestBehavior.opaque,
+        behavior: HitTestBehavior.deferToChild,
         child: moengine?.renderGameView(),
       ),
     );
