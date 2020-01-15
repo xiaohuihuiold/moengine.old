@@ -18,7 +18,7 @@ abstract class GameScene {
 
   /// 场景大小
   @protected
-  Size size;
+  Size get size => sceneModule?.size;
 
   /// 当前场景游戏对象
   List<GameObject> gameObjects;
@@ -80,15 +80,27 @@ abstract class GameScene {
     return true;
   }
 
+  /// 清空游戏对象
+  @protected
+  void clearGameObject() {
+    gameObjects.clear();
+  }
+
   /// 更新
   @protected
   void update() {
+    if (sceneModule?.renderScene != this) {
+      return;
+    }
     rendererModule?.update();
   }
 
   /// 更新状态
   @protected
   void updateState() {
+    if (sceneModule?.renderScene != this) {
+      return;
+    }
     rendererModule?.updateState();
   }
 
@@ -106,10 +118,7 @@ abstract class GameScene {
   }
 
   /// 游戏绘制区域大小改变
-  @mustCallSuper
-  void onResize(Size size) {
-    this.size = size;
-  }
+  void onResize(Size size) {}
 
   /// 游戏画面的更新
   void onUpdate(int deltaTime);

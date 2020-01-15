@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:meta/meta.dart';
 import 'package:moengine/engine/exception/engine_exception.dart';
 import 'package:moengine/engine/module/engine_module.dart';
@@ -27,6 +29,9 @@ class SceneModule extends EngineModule {
   /// 场景数量
   int get sceneLength => _scenes.length;
 
+  /// 场景大小
+  Size size;
+
   SceneModule({
     List<GameScene> scenes,
   }) {
@@ -48,22 +53,27 @@ class SceneModule extends EngineModule {
     if (scene == null) {
       return false;
     }
+    // 暂停顶层场景
+    if (sceneLength > 0) {
+      _scenes[sceneLength - 1]?.onPause();
+    }
+    // 如果场景已经存在的话
+    // 提升到顶部
     int sceneIndex = _scenes.indexOf(scene);
     if (sceneIndex >= 0) {
       GameScene tempScene = _scenes[sceneIndex];
-      // 暂停场景
-      _scenes[sceneLength - 1]?.onPause();
       // 移除旧场景并放到新的后面
       _scenes.removeAt(sceneIndex);
       _scenes.add(tempScene);
       // 恢复场景
       tempScene.onResume();
-      rendererModule?.update();
+      rendererModule?.updateState();
       return true;
     }
+    // 如果是新的场景则直接添加到最后
     _scenes.add(scene);
     scene.onAttach(moengine);
-    rendererModule?.update();
+    rendererModule?.updateState();
     return true;
   }
 
@@ -73,9 +83,10 @@ class SceneModule extends EngineModule {
       return false;
     }
     GameScene scene = _scenes[sceneLength - 1];
-    _scenes.removeLast();
+    _scenes.remove(scene);
     scene?.onDestroy();
-    rendererModule?.update();
+    renderScene?.onResume();
+    rendererModule?.updateState();
     return true;
   }
 
@@ -84,9 +95,13 @@ class SceneModule extends EngineModule {
     if (scene == null) {
       return false;
     }
+    // 顶部的场景则调用移除顶部场景的方法
+    if (_scenes.indexOf(scene) == sceneLength - 1) {
+      return removeTopScene();
+    }
     _scenes.remove(scene);
     scene.onDestroy();
-    rendererModule?.update();
+    rendererModule?.updateState();
     return true;
   }
 
@@ -112,6 +127,12 @@ class SceneModule extends EngineModule {
   @override
   void onResume() {
     renderScene?.onResume();
+  }
+
+  @override
+  void onResize(Size size) {
+    this.size = size;
+    renderScene?.onResize(size);
   }
 
   /// 销毁并移除所有场景

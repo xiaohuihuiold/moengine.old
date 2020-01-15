@@ -39,16 +39,12 @@ abstract class RendererModule extends EngineModule {
     if (setState != null) {
       setState(() {});
     }
+    update();
   }
 
   /// 渲染模块不可移除
   @override
   bool onRemove() => false;
-
-  @override
-  void onResize(Size size) {
-    sceneModule?.renderScene?.onResize(size);
-  }
 
   /// 渲染游戏画面
   @mustCallSuper

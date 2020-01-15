@@ -48,8 +48,57 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: MoengineView(
-        moengine: _moengine,
+      appBar: AppBar(
+        title: const Text('GameTest'),
+      ),
+      body: Column(
+        children: <Widget>[
+          Container(
+            width: double.infinity,
+            color: Colors.pink,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              child: Row(
+                children: <Widget>[
+                  const SizedBox(width: 5.0),
+                  RaisedButton(
+                    child: const Text('TestGameScene'),
+                    onPressed: () {
+                      _moengine
+                          .getModule<SceneModule>()
+                          .loadScene(TestGameScene());
+                    },
+                  ),
+                  const SizedBox(width: 5.0),
+                  RaisedButton(
+                    child: const Text('TestGameScene'),
+                    onPressed: () {
+                      _moengine
+                          .getModule<SceneModule>()
+                          .loadScene(TestGameScene());
+                    },
+                  ),
+                  const SizedBox(width: 5.0),
+                  RaisedButton(
+                    child: const Text('TestGameScene'),
+                    onPressed: () {
+                      _moengine
+                          .getModule<SceneModule>()
+                          .loadScene(TestGameScene());
+                    },
+                  ),
+                  const SizedBox(width: 5.0),
+                ],
+              ),
+            ),
+          ),
+          Expanded(
+            child: MoengineView(
+              moengine: _moengine,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -60,10 +109,17 @@ class TestGameScene extends GameScene with PanDetector {
 
   double angle = 0.0;
 
+  Timer _timer;
+
   @override
   void onAttach(Moengine moengine) {
     super.onAttach(moengine);
-    Timer.periodic(Duration(milliseconds: 1), (_) {
+    _startRotate();
+  }
+
+  void _startRotate() {
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(milliseconds: 1), (_) {
       if (flutterObject == null) {
         return;
       }
@@ -89,6 +145,12 @@ class TestGameScene extends GameScene with PanDetector {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
+                RaisedButton(
+                  child: const Text('Back'),
+                  onPressed: () {
+                    sceneModule.removeTopScene();
+                  },
+                ),
                 RaisedButton(
                   child: const Text('Rotate'),
                   onPressed: () {
@@ -119,7 +181,8 @@ class TestGameScene extends GameScene with PanDetector {
                         AnchorComponent(anchor: const Offset(0.5, 0.5)),
                         RenderComponent(render: (GameObject gameObject,
                             Canvas canvas, Paint paint) {
-                          canvas.drawPaint(Paint()..color=Colors.pink.withOpacity(0.2));
+                          canvas.drawPaint(
+                              Paint()..color = Colors.pink.withOpacity(0.2));
                           canvas.drawCircle(
                             const Offset(50.0, 50.0),
                             10.0,
@@ -174,6 +237,27 @@ class TestGameScene extends GameScene with PanDetector {
         flutterObject.getComponent<PositionComponent>();
     positionComponent.position = Offset(position.dx, position.dy);
     update();
+  }
+
+  @override
+  void onPause() {
+    super.onPause();
+    print('onPause');
+    _timer?.cancel();
+  }
+
+  @override
+  void onResume() {
+    super.onResume();
+    print('onResume');
+    _startRotate();
+  }
+
+  @override
+  void onDestroy() {
+    super.onDestroy();
+    _timer?.cancel();
+    print('onDestroy');
   }
 
   /// 加载图片
