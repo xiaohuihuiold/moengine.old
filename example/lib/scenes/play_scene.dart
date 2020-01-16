@@ -50,12 +50,8 @@ class PlayScene extends GameScene with PanDetector {
             PositionComponent(
               position: Offset(size.width / 2.0, size.height / 2.0),
             ),
-            SpriteComponent(
-              image: getModule<ResourceModule>()
-                  .getImage('assets/images/flutter.png', ResourceMode.assets),
-            ),
+            TextComponent(text: '测试文本'),
             AnchorComponent(anchor: const Offset(0.5, 0.5)),
-            ScaleComponent(scale: const Size(0.4, 0.4)),
           ],
         ),
       );
@@ -85,6 +81,8 @@ class PlayScene extends GameScene with PanDetector {
   @override
   void onUpdate(int deltaTime) {
     // print('PlayScene.onUpdate($deltaTime)');
+    getGameObjectAt(gameObjectLength - 1).getComponent<TextComponent>().text =
+        '$deltaTime';
   }
 
   @override

@@ -202,8 +202,11 @@ class _RenderCanvas extends RenderBox
       }
       SpriteComponent spriteComponent = componentMap[SpriteComponent];
       SizeComponent sizeComponent = componentMap[SizeComponent];
-      // 不是精灵并且也没有大小的物体也不进行绘制
-      if (spriteComponent == null && sizeComponent == null) {
+      TextComponent textComponent = componentMap[TextComponent];
+      // 不是精灵或者文本并且也没有大小的物体也不进行绘制
+      if (spriteComponent == null &&
+          textComponent == null &&
+          sizeComponent == null) {
         return;
       }
       AnchorComponent anchorComponent = componentMap[AnchorComponent];
@@ -240,7 +243,26 @@ class _RenderCanvas extends RenderBox
         );
       }
 
-      // 当没有尺寸组件,并且也没有从精灵组件读取到宽高时则不进行绘制
+      TextPainter textPainter;
+
+      if (textComponent != null && textComponent.text != null) {
+        textPainter = TextPainter(
+          text: TextSpan(
+            text: textComponent.text,
+            style: TextStyle(
+              color: textComponent.color ?? const Color(0xff000000),
+              fontSize: textComponent.fontSize,
+              fontFamily: textComponent.fontFamily,
+            ),
+          ),
+          textAlign: textComponent.textAlign ?? TextAlign.left,
+          textDirection: textComponent.textDirection ?? TextDirection.ltr,
+        );
+        textPainter.layout();
+        size = textPainter.size;
+      }
+
+      // 当没有尺寸组件,并且也没有从其它组件读取到宽高时则不进行绘制
       if (size == null) {
         return;
       }
@@ -304,6 +326,13 @@ class _RenderCanvas extends RenderBox
           dst,
           drawPaint,
         );
+      }
+
+      // 绘制文本
+      if (textPainter != null) {
+        canvas.translate(position.dx, position.dy);
+        textPainter.paint(canvas, Offset.zero);
+        canvas.translate(-position.dx, -position.dy);
       }
 
       // 如果是canvas组件,则用户自行渲染

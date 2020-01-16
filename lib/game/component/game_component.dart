@@ -1,6 +1,7 @@
 import 'dart:typed_data';
-import 'dart:ui';
+import 'dart:ui' as ui;
 
+import 'package:flutter/cupertino.dart';
 import 'package:moengine/game/game_object.dart';
 
 /// 基础的游戏组件
@@ -51,7 +52,7 @@ class AnchorComponent extends GameComponent {
 ///
 /// 可以添加一张图片
 class SpriteComponent extends GameComponent {
-  Image image;
+  ui.Image image;
   Rect src;
 
   SpriteComponent({this.image, this.src});
@@ -104,6 +105,25 @@ class RenderComponent extends GameComponent {
   Function(GameObject gameObject, Canvas canvas, Paint paint) render;
 
   RenderComponent({this.render});
+}
+
+/// 文本组件
+class TextComponent extends GameComponent {
+  String text;
+  double fontSize;
+  Color color;
+  String fontFamily;
+  TextAlign textAlign;
+  TextDirection textDirection;
+
+  TextComponent({
+    @required this.text,
+    this.fontSize,
+    this.color,
+    this.fontFamily,
+    this.textAlign,
+    this.textDirection,
+  });
 }
 
 /// 自定义组件
