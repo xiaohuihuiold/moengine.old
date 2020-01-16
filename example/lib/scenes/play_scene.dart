@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/gestures/events.dart';
+import 'package:moengine/engine/module/resource_module.dart';
 import 'package:moengine/game/component/game_component.dart';
 import 'package:moengine/game/game_object.dart';
 import 'package:moengine/game/scene/game_scene.dart';
@@ -28,16 +29,37 @@ class PlayScene extends GameScene with PanDetector {
         SizeComponent(size: const Size(50.0, 50.0)),
         AnchorComponent(anchor: const Offset(0.5, 0.5)),
         Rotate2DComponent(radians: (i + 1.0) / 8.0 * pi),
-        RenderComponent(render: (_, Canvas canvas, Paint paint) {
-          canvas.drawPaint(Paint()..color = Colors.pink.withOpacity(0.1));
-          canvas.drawCircle(
-            const Offset(25.0, 25.0),
-            12.5,
-            paint..color = Colors.pink.withOpacity(0.05),
-          );
-        }),
+        RenderComponent(
+          render: (_, Canvas canvas, Paint paint) {
+            canvas.drawPaint(Paint()..color = Colors.pink.withOpacity(0.1));
+            canvas.drawCircle(
+              const Offset(25.0, 25.0),
+              12.5,
+              Paint()..color = Colors.pink.withOpacity(0.05),
+            );
+          },
+        ),
       ]));
     }
+    getModule<ResourceModule>()
+        .loadImage('assets/images/flutter.png', ResourceMode.assets)
+        .then((_) {
+      addGameObject(
+        createObject(
+          [
+            PositionComponent(
+              position: Offset(size.width / 2.0, size.height / 2.0),
+            ),
+            SpriteComponent(
+              image: getModule<ResourceModule>()
+                  .getImage('assets/images/flutter.png', ResourceMode.assets),
+            ),
+            AnchorComponent(anchor: const Offset(0.5, 0.5)),
+            ScaleComponent(scale: const Size(0.4, 0.4)),
+          ],
+        ),
+      );
+    });
     _startAnimation();
   }
 
@@ -45,6 +67,9 @@ class PlayScene extends GameScene with PanDetector {
     _timer = Timer.periodic(const Duration(milliseconds: 1), (_) {
       for (int i = 0; i < gameObjectLength; i++) {
         GameObject gameObject = getGameObjectAt(i);
+        if (gameObject.getComponent<Rotate2DComponent>() == null) {
+          continue;
+        }
         if (i % 2 == 0) {
           gameObject.getComponent<Rotate2DComponent>().radians +=
               sin((i + 1.0) / gameObjectLength * 2.0) * 0.005;

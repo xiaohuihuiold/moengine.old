@@ -30,7 +30,7 @@ abstract class EngineModule {
   bool onRemove() => true;
 
   /// 获取模块
-  T getModule<T>() {
+  T getModule<T extends EngineModule>() {
     return moengine?.moduleManager?.getModule<T>();
   }
 

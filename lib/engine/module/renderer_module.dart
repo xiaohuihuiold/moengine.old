@@ -245,6 +245,11 @@ class _RenderCanvas extends RenderBox
         return;
       }
 
+      // 给游戏对象加上大小
+      if (sizeComponent == null) {
+        gameObject.addComponent(SizeComponent(size: size));
+      }
+
       canvas.save();
 
       // 变换组件

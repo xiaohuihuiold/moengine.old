@@ -28,7 +28,7 @@ class Moengine {
   }
 
   /// 获取模块
-  T getModule<T>() {
+  T getModule<T extends EngineModule>() {
     return moduleManager.getModule<T>();
   }
 
@@ -62,7 +62,7 @@ class ModuleManager {
   Moengine _moengine;
 
   /// 模块集合
-  Map<Type, EngineModule> _moduleMap;
+  final Map<Type, EngineModule> _moduleMap = Map();
 
   /// 获取所有模块
   Iterable<EngineModule> get modules => _moduleMap.values;
@@ -77,8 +77,6 @@ class ModuleManager {
   SceneModule _sceneModule;
 
   ModuleManager._internal([List<EngineModule> modules]) {
-    _moduleMap = Map();
-
     // 检查重复模块
     Map<Type, int> moduleCount = Map();
     modules?.forEach((EngineModule module) {
@@ -133,6 +131,7 @@ class ModuleManager {
     // 设置默认模块
     _rendererModule ??= CanvasRendererModule();
     _sceneModule ??= SceneModule();
+    _resourceModule ??= DefaultResourceModule();
 
     _moduleMap[RendererModule] = _rendererModule;
     _moduleMap[AudioModule] = _audioModule;
@@ -210,7 +209,7 @@ class ModuleManager {
   }
 
   /// 获取一个模块
-  T getModule<T>() {
+  T getModule<T extends EngineModule>() {
     switch (T) {
       case RendererModule:
         return _rendererModule as T;
@@ -221,7 +220,7 @@ class ModuleManager {
       case SceneModule:
         return _sceneModule as T;
     }
-    return _moduleMap[T] as T;
+    return _moduleMap[T];
   }
 
   /// 检查是否是引擎模块

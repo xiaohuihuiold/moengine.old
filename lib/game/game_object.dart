@@ -131,8 +131,8 @@ class GameObject {
   }
 
   /// 获取组件
-  T getComponent<T>() {
-    return componentMap[T] as T;
+  T getComponent<T extends GameComponent>() {
+    return componentMap[T];
   }
 
   /// 根据下标获取组件
