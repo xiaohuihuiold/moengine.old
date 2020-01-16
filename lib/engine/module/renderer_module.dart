@@ -337,7 +337,7 @@ class _RenderCanvas extends RenderBox
 
       // 如果是canvas组件,则用户自行渲染
       canvas.translate(position.dx, position.dy);
-      canvasComponent?.render(gameObject, canvas, drawPaint);
+      canvasComponent?.customRender(gameObject, canvas, drawPaint);
       canvas.translate(-position.dx, -position.dy);
 
       // 自定义组件渲染

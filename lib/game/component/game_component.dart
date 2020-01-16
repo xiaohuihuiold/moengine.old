@@ -9,6 +9,8 @@ import 'package:moengine/game/game_object.dart';
 /// 负责添加功能到游戏对象上
 abstract class GameComponent {
   GameObject gameObject;
+
+  void render(GameObject gameObject, Canvas canvas, Paint paint) {}
 }
 
 /// 位置组件
@@ -102,9 +104,9 @@ class TransformComponent extends GameComponent {
 ///
 /// 简单的绘制特殊形状的组件
 class RenderComponent extends GameComponent {
-  Function(GameObject gameObject, Canvas canvas, Paint paint) render;
+  Function(GameObject gameObject, Canvas canvas, Paint paint) customRender;
 
-  RenderComponent({this.render});
+  RenderComponent({this.customRender});
 }
 
 /// 文本组件
@@ -130,5 +132,6 @@ class TextComponent extends GameComponent {
 ///
 /// 可以自定义更多的组件
 abstract class CustomComponent extends GameComponent {
+  @override
   void render(GameObject gameObject, Canvas canvas, Paint paint);
 }

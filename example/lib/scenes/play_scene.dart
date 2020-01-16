@@ -30,7 +30,7 @@ class PlayScene extends GameScene with PanDetector {
         AnchorComponent(anchor: const Offset(0.5, 0.5)),
         Rotate2DComponent(radians: (i + 1.0) / 8.0 * pi),
         RenderComponent(
-          render: (_, Canvas canvas, Paint paint) {
+          customRender: (_, Canvas canvas, Paint paint) {
             canvas.drawPaint(Paint()..color = Colors.pink.withOpacity(0.1));
             canvas.drawCircle(
               const Offset(25.0, 25.0),
@@ -81,7 +81,7 @@ class PlayScene extends GameScene with PanDetector {
   @override
   void onUpdate(int deltaTime) {
     // print('PlayScene.onUpdate($deltaTime)');
-    getGameObjectAt(gameObjectLength - 1).getComponent<TextComponent>().text =
+    getGameObjectAt(gameObjectLength - 1)?.getComponent<TextComponent>()?.text =
         '$deltaTime';
   }
 
