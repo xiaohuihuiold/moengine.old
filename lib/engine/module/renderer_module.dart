@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:flutter/rendering.dart';
@@ -186,181 +185,49 @@ class _RenderCanvas extends RenderBox
       canvas.save();
       PaintComponent paintComponent = gameObject.componentMap[PaintComponent];
       Paint drawPaint = paintComponent?.paint ?? _gameObjectPaint;
-      gameObject.components.forEach((GameComponent gameComponent) {
-        if (gameComponent is GameComponentRender) {
-          (gameComponent as GameComponentRender)
-              ?.onBefore(gameObject, canvas, drawPaint);
-        }
-      });
-      // 渲染之后
-      gameObject.components.forEach((GameComponent gameComponent) {
-        if (gameComponent is GameComponentRender) {
-          (gameComponent as GameComponentRender)
-              ?.onAfter(gameObject, canvas, drawPaint);
-        }
-      });
-      canvas.restore();
-      /*  Map<Type, GameComponent> componentMap = gameObject.componentMap;
-      if (componentMap == null || componentMap.isEmpty) {
-        return;
-      }
-      Paint drawPaint = _gameObjectPaint;
-
-      PaintComponent paintComponent = componentMap[PaintComponent];
-
-      // 设置自定义画笔
-      if (paintComponent != null) {
-        drawPaint = paintComponent.paint;
-      }
-      PositionComponent positionComponent = componentMap[PositionComponent];
-      // 没有坐标的物体不绘制
-      if (positionComponent == null || positionComponent.position == null) {
-        return;
-      }
-      SpriteComponent spriteComponent = componentMap[SpriteComponent];
-      SizeComponent sizeComponent = componentMap[SizeComponent];
-      TextComponent textComponent = componentMap[TextComponent];
-      // 不是精灵或者文本并且也没有大小的物体也不进行绘制
-      if (spriteComponent == null &&
-          textComponent == null &&
-          sizeComponent == null) {
-        return;
-      }
-      AnchorComponent anchorComponent = componentMap[AnchorComponent];
-      ScaleComponent scaleComponent = componentMap[ScaleComponent];
-      Rotate2DComponent rotate2dComponent = componentMap[Rotate2DComponent];
-      RenderComponent canvasComponent = componentMap[RenderComponent];
-      ClipComponent clipComponent = componentMap[ClipComponent];
-      TransformComponent transformComponent = componentMap[TransformComponent];
-
-      // 绘制坐标
-      Offset position = positionComponent.position;
-      // 锚点,默认锚点左上角
-      Offset anchor = anchorComponent?.anchor ?? Offset.zero;
-      // 游戏对象尺寸
-      Size size = sizeComponent?.size;
-
-      // 精灵组件
-      ui.Image image = spriteComponent?.image;
-      // 精灵图片读取范围,默认显示整个图片
-      Rect src = spriteComponent?.src;
-      if (src == null && image != null) {
-        src = Rect.fromLTWH(
-          0.0,
-          0.0,
-          image.width.toDouble(),
-          image.height.toDouble(),
-        );
-      }
-      // 图片缩放并变换为flutter尺寸
-      if (src != null) {
-        size ??= Size(
-          src.width / _rendererModule.scaleFactory,
-          src.height / _rendererModule.scaleFactory,
-        );
-      }
-
-      TextPainter textPainter;
-
-      if (textComponent != null && textComponent.text != null) {
-        textPainter = TextPainter(
-          text: TextSpan(
-            text: textComponent.text,
-            style: TextStyle(
-              color: textComponent.color ?? const Color(0xff000000),
-              fontSize: textComponent.fontSize,
-              fontFamily: textComponent.fontFamily,
-            ),
-          ),
-          textAlign: textComponent.textAlign ?? TextAlign.left,
-          textDirection: textComponent.textDirection ?? TextDirection.ltr,
-        );
-        textPainter.layout();
-        size = textPainter.size;
-      }
-
-      // 当没有尺寸组件,并且也没有从其它组件读取到宽高时则不进行绘制
-      if (size == null) {
-        return;
-      }
-
-      // 给游戏对象加上大小
-      if (sizeComponent == null) {
-        gameObject.addComponent(SizeComponent(size: size));
-      }
-
-      canvas.save();
-
-      // 变换组件
-      if (transformComponent != null && transformComponent.transform != null) {
-        canvas.transform(transformComponent.transform);
-      }
-
-      // 旋转画布
-      if (rotate2dComponent != null) {
-        canvas.translate(position.dx, position.dy);
-        canvas.rotate(rotate2dComponent.radians);
-        canvas.translate(-position.dx, -position.dy);
-      }
-
-      // 缩放画布
-      if (scaleComponent != null) {
-        canvas.translate(position.dx, position.dy);
-        canvas.scale(scaleComponent.scale.width, scaleComponent.scale.height);
-        canvas.translate(-position.dx, -position.dy);
-      }
-
-      // 根据坐标加上锚点位置确定最终坐标
-      position = position.translate(
-        -size.width * anchor?.dx,
-        -size.height * anchor?.dy,
-      );
-
-      Rect dst =
-          Rect.fromLTWH(position.dx, position.dy, size.width, size.height);
-
-      // 执行裁剪
-      if (clipComponent != null) {
-        Radius radius = Radius.zero;
-        switch (clipComponent.clipShape) {
-          case ClipShape.rect:
-            break;
-          case ClipShape.roundRect:
-            radius = clipComponent.radius ?? Radius.zero;
-            break;
-          case ClipShape.circle:
-            radius =
-                Radius.circular(max<double>(size.width, size.height) / 2.0);
-            break;
-        }
-        canvas.clipRRect(RRect.fromRectAndRadius(dst, radius));
-      }
-      // 绘制精灵
-      if (spriteComponent != null && spriteComponent.image != null) {
-        canvas.drawImageRect(
-          image,
-          src,
-          dst,
+      // 测量
+      Iterable<GameComponentMeasure> measures =
+          gameObject.components.whereType<GameComponentMeasure>().toList();
+      measures?.forEach((GameComponentMeasure gameComponentMeasure) {
+        gameComponentMeasure?.onMeasure(
+          gameObject,
+          canvas,
           drawPaint,
+          _rendererModule?.scaleFactory,
         );
-      }
+      });
 
-      // 绘制文本
-      if (textPainter != null) {
-        canvas.translate(position.dx, position.dy);
-        textPainter.paint(canvas, Offset.zero);
-        canvas.translate(-position.dx, -position.dy);
-      }
+      // 第一次绘制
+      Iterable<GameComponentRender> renders =
+          gameObject.components.whereType<GameComponentRender>().toList();
+      renders?.forEach((GameComponentRender gameComponentRender) {
+        gameComponentRender?.onBefore(
+          gameObject,
+          canvas,
+          drawPaint,
+          _rendererModule?.scaleFactory,
+        );
+      });
 
-      // 如果是canvas组件,则用户自行渲染
-      canvas.translate(position.dx, position.dy);
-      canvasComponent?.customRender(gameObject, canvas, drawPaint);
-      canvas.translate(-position.dx, -position.dy);
+      // 第二次逆向绘制
+      Iterable<GameComponentRender> reversedRenders = gameObject.components
+          .whereType<GameComponentRender>()
+          .toList()
+          .reversed;
+      reversedRenders?.forEach((GameComponentRender gameComponentRender) {
+        gameComponentRender?.onAfter(
+          gameObject,
+          canvas,
+          drawPaint,
+          _rendererModule?.scaleFactory,
+        );
+      });
 
-      canvas.restore();*/
+      canvas.restore();
     });
 
     canvas.translate(-offset.dx, -offset.dy);
+
     canvas.restore();
   }
 

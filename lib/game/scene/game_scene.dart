@@ -2,8 +2,10 @@ import 'package:flutter/gestures.dart';
 import 'package:meta/meta.dart';
 import 'package:flutter/widgets.dart';
 import 'package:moengine/engine/exception/engine_exception.dart';
+import 'package:moengine/engine/module/audio_module.dart';
 import 'package:moengine/engine/module/engine_module.dart';
 import 'package:moengine/engine/module/renderer_module.dart';
+import 'package:moengine/engine/module/resource_module.dart';
 import 'package:moengine/engine/module/scene_module.dart';
 import 'package:moengine/game/component/game_component.dart';
 import 'package:moengine/game/game_object.dart';
@@ -37,12 +39,19 @@ abstract class GameScene {
 
   /// 场景模块
   @protected
-  SceneModule get sceneModule => moduleManager?.getModule<SceneModule>();
+  SceneModule get sceneModule => getModule<SceneModule>();
 
   /// 渲染模块
   @protected
-  RendererModule get rendererModule =>
-      moduleManager?.getModule<RendererModule>();
+  RendererModule get rendererModule => getModule<RendererModule>();
+
+  /// 资源模块
+  @protected
+  ResourceModule get resourceModule => getModule<ResourceModule>();
+
+  /// 音频模块
+  @protected
+  AudioModule get audioModule => getModule<AudioModule>();
 
   GameScene() {
     gameObjects = List();
@@ -101,7 +110,7 @@ abstract class GameScene {
 
   /// 获取模块
   T getModule<T extends EngineModule>() {
-    return moengine?.getModule<T>();
+    return moduleManager?.getModule<T>();
   }
 
   /// 更新

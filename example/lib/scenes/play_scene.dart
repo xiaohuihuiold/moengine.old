@@ -21,10 +21,10 @@ class PlayScene extends GameScene with PanDetector {
       addGameObject(createObject([
         PositionComponent(
           position: Offset(size.width / 2.0, size.height / 2.0),
+          radians: (i + 1.0) / 8.0 * pi,
         ),
         SizeComponent(size: const Size(50.0, 50.0)),
         AnchorComponent(anchor: const Offset(0.5, 0.5)),
-        Rotate2DComponent(radians: (i + 1.0) / 8.0 * pi),
         ClipComponent(
           clipShape: ClipShape.roundRect,
           radius: const Radius.circular(8.0),
@@ -32,16 +32,11 @@ class PlayScene extends GameScene with PanDetector {
         RenderComponent(
           customRender: (_, Canvas canvas, Paint paint) {
             canvas.drawPaint(Paint()..color = Colors.pink.withOpacity(0.1));
-            canvas.drawCircle(
-              const Offset(25.0, 25.0),
-              12.5,
-              Paint()..color = Colors.pink.withOpacity(0.05),
-            );
           },
         ),
       ]));
     }
-    getModule<ResourceModule>()
+    resourceModule
         .loadImage('assets/images/flutter.png', ResourceMode.assets)
         .then((_) {
       addGameObject(
@@ -52,6 +47,19 @@ class PlayScene extends GameScene with PanDetector {
             ),
             AnchorComponent(anchor: const Offset(0.5, 0.5)),
             TextComponent(text: '测试文本'),
+            ClipComponent(
+              clipShape: ClipShape.roundRect,
+              radius: const Radius.circular(8.0),
+            ),
+            SpriteComponent(
+              image: resourceModule.getImage(
+                  'assets/images/flutter.png', ResourceMode.assets),
+            ),
+            RenderComponent(
+              customRender: (_, Canvas canvas, Paint paint) {
+                canvas.drawPaint(Paint()..color = Colors.grey.withOpacity(0.5));
+              },
+            ),
           ],
         ),
       );
@@ -63,14 +71,14 @@ class PlayScene extends GameScene with PanDetector {
     _timer = Timer.periodic(const Duration(milliseconds: 1), (_) {
       for (int i = 0; i < gameObjectLength; i++) {
         GameObject gameObject = getGameObjectAt(i);
-        if (gameObject.getComponent<Rotate2DComponent>() == null) {
+        if (gameObject.getComponent<PositionComponent>() == null) {
           continue;
         }
         if (i % 2 == 0) {
-          gameObject.getComponent<Rotate2DComponent>().radians +=
+          gameObject.getComponent<PositionComponent>().radians +=
               sin((i + 1.0) / gameObjectLength * 2.0) * 0.005;
         } else {
-          gameObject.getComponent<Rotate2DComponent>().radians -=
+          gameObject.getComponent<PositionComponent>().radians -=
               sin((i + 1.0) / gameObjectLength * 2.0) * 0.005;
         }
       }

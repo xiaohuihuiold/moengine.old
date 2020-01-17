@@ -6,6 +6,24 @@ import 'dart:typed_data';
 
 import 'package:moengine/game/game_object.dart';
 
+/// 数据组件
+mixin GameComponentData {}
+
+/// 渲染组件,混合了此类的组件才需要进行渲染
+mixin GameComponentRender {
+  void onBefore(
+      GameObject gameObject, Canvas canvas, Paint paint, double scaleFactory) {}
+
+  void onAfter(
+      GameObject gameObject, Canvas canvas, Paint paint, double scaleFactory) {}
+}
+
+/// 测量组件
+mixin GameComponentMeasure {
+  void onMeasure(
+      GameObject gameObject, Canvas canvas, Paint paint, double scaleFactory) {}
+}
+
 /// 基础的游戏组件
 ///
 /// 负责添加功能到游戏对象上
@@ -13,72 +31,32 @@ abstract class GameComponent {
   GameObject gameObject;
 }
 
-/// 组件渲染类,混合了此类的组件才需要进行渲染
-mixin GameComponentRender {
-  void onBefore(GameObject gameObject, Canvas canvas, Paint paint) {}
-
-  void onAfter(GameObject gameObject, Canvas canvas, Paint paint) {}
-}
-
 /// 位置组件
 ///
-/// 包含坐标信息
+/// 包含坐标,旋转,缩放
 class PositionComponent extends GameComponent with GameComponentRender {
   Offset position;
-
-  PositionComponent({this.position});
-
-  @override
-  void onBefore(GameObject gameObject, Canvas canvas, Paint paint) {
-    canvas.translate(position.dx, position.dy);
-  }
-
-  @override
-  void onAfter(GameObject gameObject, Canvas canvas, Paint paint) {
-    canvas.translate(-position.dx, -position.dy);
-  }
-}
-
-/// 二维旋转组件
-///
-/// 简单的绕z轴旋转
-/// 弧度
-class Rotate2DComponent extends GameComponent with GameComponentRender {
   double radians;
-
-  Rotate2DComponent({this.radians});
-
-  @override
-  void onBefore(GameObject gameObject, Canvas canvas, Paint paint) {
-    SizeComponent sizeComponent = gameObject.componentMap[SizeComponent];
-    Size size = sizeComponent.size;
-    AnchorComponent anchorComponent = gameObject.componentMap[AnchorComponent];
-    canvas.translate(size.width * anchorComponent.anchor.dx,
-        size.width * anchorComponent.anchor.dx);
-    canvas.rotate(radians);
-    canvas.translate(-size.width * anchorComponent.anchor.dx,
-        -size.width * anchorComponent.anchor.dx);
-  }
-}
-
-/// 缩放组件
-///
-/// 宽高缩放
-class ScaleComponent extends GameComponent with GameComponentRender {
   Size scale;
 
-  ScaleComponent({this.scale});
+  PositionComponent({
+    this.position,
+    this.radians = 0.0,
+    this.scale = const Size(1.0, 1.0),
+  });
 
   @override
-  void onBefore(GameObject gameObject, Canvas canvas, Paint paint) {
-    SizeComponent sizeComponent = gameObject.componentMap[SizeComponent];
-    Size size = sizeComponent.size;
-    AnchorComponent anchorComponent = gameObject.componentMap[AnchorComponent];
-    canvas.translate(size.width * anchorComponent.anchor.dx,
-        size.width * anchorComponent.anchor.dx);
+  void onBefore(
+      GameObject gameObject, Canvas canvas, Paint paint, double scaleFactory) {
+    canvas.translate(position.dx, position.dy);
+    canvas.rotate(radians);
     canvas.scale(scale.width, scale.height);
-    canvas.translate(-size.width * anchorComponent.anchor.dx,
-        -size.width * anchorComponent.anchor.dx);
+  }
+
+  @override
+  void onAfter(
+      GameObject gameObject, Canvas canvas, Paint paint, double scaleFactory) {
+    canvas.translate(-position.dx, -position.dy);
   }
 }
 
@@ -91,52 +69,20 @@ class AnchorComponent extends GameComponent with GameComponentRender {
   AnchorComponent({this.anchor});
 
   @override
-  void onBefore(GameObject gameObject, Canvas canvas, Paint paint) {
-    SizeComponent sizeComponent = gameObject.componentMap[SizeComponent];
-    if (sizeComponent == null) {
-      return;
-    }
+  void onBefore(
+      GameObject gameObject, Canvas canvas, Paint paint, double scaleFactory) {
+    SizeComponent sizeComponent = gameObject.getComponent<SizeComponent>();
     Size size = sizeComponent.size;
-    canvas.translate(-size.width * anchor.dx, -size.width * anchor.dx);
+    canvas.translate(-size.width * anchor.dx, -size.height * anchor.dy);
   }
 
   @override
-  void onAfter(GameObject gameObject, Canvas canvas, Paint paint) {
-    SizeComponent sizeComponent = gameObject.componentMap[SizeComponent];
+  void onAfter(
+      GameObject gameObject, Canvas canvas, Paint paint, double scaleFactory) {
+    SizeComponent sizeComponent = gameObject.getComponent<SizeComponent>();
     Size size = sizeComponent.size;
-    canvas.translate(size.width * anchor.dx, size.width * anchor.dx);
+    canvas.translate(size.width * anchor.dx, size.height * anchor.dy);
   }
-}
-
-/// 精灵组件
-///
-/// 可以添加一张图片
-class SpriteComponent extends GameComponent with GameComponentRender {
-  Image image;
-  Rect src;
-
-  SpriteComponent({this.image, this.src});
-
-  @override
-  void onBefore(GameObject gameObject, Canvas canvas, Paint paint) {}
-}
-
-/// 大小组件
-///
-/// 定义的绘制区域
-class SizeComponent extends GameComponent {
-  Size size;
-
-  SizeComponent({this.size});
-}
-
-/// 画笔组件
-///
-/// 自定义游戏画笔
-class PaintComponent extends GameComponent {
-  Paint paint;
-
-  PaintComponent({this.paint});
 }
 
 /// 裁剪形状
@@ -152,8 +98,9 @@ class ClipComponent extends GameComponent with GameComponentRender {
   ClipComponent({this.clipShape, this.radius});
 
   @override
-  void onBefore(GameObject gameObject, Canvas canvas, Paint paint) {
-    SizeComponent sizeComponent = gameObject.componentMap[SizeComponent];
+  void onBefore(
+      GameObject gameObject, Canvas canvas, Paint paint, double scaleFactory) {
+    SizeComponent sizeComponent = gameObject.getComponent<SizeComponent>();
     Size size = sizeComponent.size;
     Radius radius = Radius.zero;
     switch (clipShape) {
@@ -180,7 +127,8 @@ class TransformComponent extends GameComponent with GameComponentRender {
   TransformComponent({this.transform});
 
   @override
-  void onBefore(GameObject gameObject, Canvas canvas, Paint paint) {
+  void onBefore(
+      GameObject gameObject, Canvas canvas, Paint paint, double scaleFactory) {
     canvas.transform(transform);
   }
 }
@@ -194,19 +142,66 @@ class RenderComponent extends GameComponent with GameComponentRender {
   RenderComponent({this.customRender});
 
   @override
-  void onBefore(GameObject gameObject, Canvas canvas, Paint paint) {
+  void onBefore(
+      GameObject gameObject, Canvas canvas, Paint paint, double scaleFactory) {
     customRender(gameObject, canvas, paint);
   }
 }
 
+/// 精灵组件
+///
+/// 可以添加一张图片
+class SpriteComponent extends GameComponent
+    with GameComponentRender, GameComponentMeasure {
+  Image image;
+  Rect src;
+
+  SpriteComponent({this.image, this.src});
+
+  @override
+  void onMeasure(
+      GameObject gameObject, Canvas canvas, Paint paint, double scaleFactory) {
+    Size size = Size(src?.width ?? (image.width.toDouble() / scaleFactory),
+        src?.height ?? (image.height.toDouble() / scaleFactory));
+    SizeComponent sizeComponent = gameObject.getComponent<SizeComponent>();
+    if (sizeComponent == null) {
+      gameObject.addComponent(SizeComponent(size: size));
+    } else {
+      sizeComponent.size = size;
+    }
+  }
+
+  @override
+  void onBefore(
+      GameObject gameObject, Canvas canvas, Paint paint, double scaleFactory) {
+    SizeComponent sizeComponent = gameObject.getComponent<SizeComponent>();
+    Size size = sizeComponent.size;
+    Rect dst = Rect.fromLTWH(0.0, 0.0, size.width, size.height);
+    canvas.drawImageRect(
+      image,
+      src ??
+          (Rect.fromLTWH(
+            0.0,
+            0.0,
+            size.width * scaleFactory,
+            size.height * scaleFactory,
+          )),
+      dst,
+      paint,
+    );
+  }
+}
+
 /// 文本组件
-class TextComponent extends GameComponent with GameComponentRender {
+class TextComponent extends GameComponent
+    with GameComponentRender, GameComponentMeasure {
   String text;
   double fontSize;
   Color color;
   String fontFamily;
   TextAlign textAlign;
   TextDirection textDirection;
+  TextPainter _textPainter;
 
   TextComponent({
     @required this.text,
@@ -217,11 +212,8 @@ class TextComponent extends GameComponent with GameComponentRender {
     this.textDirection,
   });
 
-  @override
-  void onBefore(GameObject gameObject, Canvas canvas, Paint paint) {
-    TextPainter textPainter;
-
-    textPainter = TextPainter(
+  void _layout() {
+    _textPainter = TextPainter(
       text: TextSpan(
         text: text,
         style: TextStyle(
@@ -233,11 +225,44 @@ class TextComponent extends GameComponent with GameComponentRender {
       textAlign: textAlign ?? TextAlign.left,
       textDirection: textDirection ?? TextDirection.ltr,
     );
-    textPainter.layout();
-    textPainter.paint(canvas, Offset.zero);
-    if (gameObject.componentMap[SizeComponent] == null) {
-      gameObject.componentMap[SizeComponent] =
-          SizeComponent(size: textPainter.size);
+    _textPainter.layout();
+  }
+
+  @override
+  void onMeasure(
+      GameObject gameObject, Canvas canvas, Paint paint, double scaleFactory) {
+    _layout();
+    Size size = _textPainter.size;
+    SizeComponent sizeComponent = gameObject.getComponent<SizeComponent>();
+    if (sizeComponent == null) {
+      gameObject.addComponent(SizeComponent(size: size));
+    } else {
+      sizeComponent.size = size;
     }
   }
+
+  @override
+  void onBefore(
+      GameObject gameObject, Canvas canvas, Paint paint, double scaleFactory) {
+    _layout();
+    _textPainter.paint(canvas, Offset.zero);
+  }
+}
+
+/// 大小组件
+///
+/// 定义的绘制区域
+class SizeComponent extends GameComponent with GameComponentData {
+  Size size;
+
+  SizeComponent({this.size});
+}
+
+/// 画笔组件
+///
+/// 自定义游戏画笔
+class PaintComponent extends GameComponent with GameComponentData {
+  Paint paint;
+
+  PaintComponent({this.paint});
 }
