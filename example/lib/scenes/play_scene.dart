@@ -17,21 +17,36 @@ class PlayScene extends GameScene with PanDetector {
   void onAttach(Moengine moengine) {
     super.onAttach(moengine);
     print('PlayScene.onAttach');
-    for (int i = 0; i < 8; i++) {
+    for (int i = 1; i < 9; i++) {
       addGameObject(createObject([
         PositionComponent(
           position: Offset(size.width / 2.0, size.height / 2.0),
           radians: (i + 1.0) / 8.0 * pi,
         ),
-        SizeComponent(size: const Size(50.0, 50.0)),
+        SizeComponent(size: const Size(100.0, 100.0)),
         AnchorComponent(anchor: const Offset(0.5, 0.5)),
         ClipComponent(
           clipShape: ClipShape.roundRect,
-          radius: const Radius.circular(8.0),
+          radius: const Radius.circular(0.0),
         ),
         RenderComponent(
           customRender: (_, Canvas canvas, Paint paint) {
-            canvas.drawPaint(Paint()..color = Colors.pink.withOpacity(0.1));
+            canvas.drawRRect(
+              RRect.fromRectXY(
+                Rect.fromLTWH(
+                  i * 10.0,
+                  i * 10.0,
+                  100.0 - i * 20.0,
+                  100.0 - i * 20.0,
+                ),
+                8.0,
+                8.0,
+              ),
+              Paint()
+                ..color = Colors.pink.withOpacity(0.8)
+                ..style = PaintingStyle.stroke
+                ..strokeWidth = 2.0,
+            );
           },
         ),
       ]));
@@ -47,6 +62,7 @@ class PlayScene extends GameScene with PanDetector {
             ),
             AnchorComponent(anchor: const Offset(0.5, 0.5)),
             TextComponent(text: '测试文本'),
+            SizeComponent(size: const Size(100.0, 100.0), immutable: true),
             ClipComponent(
               clipShape: ClipShape.roundRect,
               radius: const Radius.circular(8.0),

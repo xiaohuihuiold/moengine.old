@@ -166,7 +166,7 @@ class SpriteComponent extends GameComponent
     SizeComponent sizeComponent = gameObject.getComponent<SizeComponent>();
     if (sizeComponent == null) {
       gameObject.addComponent(SizeComponent(size: size));
-    } else {
+    } else if (!sizeComponent.immutable) {
       sizeComponent.size = size;
     }
   }
@@ -236,7 +236,7 @@ class TextComponent extends GameComponent
     SizeComponent sizeComponent = gameObject.getComponent<SizeComponent>();
     if (sizeComponent == null) {
       gameObject.addComponent(SizeComponent(size: size));
-    } else {
+    } else if (!sizeComponent.immutable) {
       sizeComponent.size = size;
     }
   }
@@ -254,8 +254,9 @@ class TextComponent extends GameComponent
 /// 定义的绘制区域
 class SizeComponent extends GameComponent with GameComponentData {
   Size size;
+  bool immutable;
 
-  SizeComponent({this.size});
+  SizeComponent({this.size, this.immutable = false});
 }
 
 /// 画笔组件
