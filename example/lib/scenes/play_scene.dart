@@ -41,7 +41,7 @@ class PlayScene extends GameScene with PanDetector {
         ),
       ]));
     }
-   /* getModule<ResourceModule>()
+    getModule<ResourceModule>()
         .loadImage('assets/images/flutter.png', ResourceMode.assets)
         .then((_) {
       addGameObject(
@@ -50,12 +50,12 @@ class PlayScene extends GameScene with PanDetector {
             PositionComponent(
               position: Offset(size.width / 2.0, size.height / 2.0),
             ),
-            TextComponent(text: '测试文本'),
             AnchorComponent(anchor: const Offset(0.5, 0.5)),
+            TextComponent(text: '测试文本'),
           ],
         ),
       );
-    });*/
+    });
     _startAnimation();
   }
 

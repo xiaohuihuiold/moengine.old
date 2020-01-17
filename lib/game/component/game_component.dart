@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'dart:ui';
+import 'package:flutter/rendering.dart';
 import 'package:meta/meta.dart';
 import 'dart:typed_data';
 
@@ -92,6 +93,9 @@ class AnchorComponent extends GameComponent with GameComponentRender {
   @override
   void onBefore(GameObject gameObject, Canvas canvas, Paint paint) {
     SizeComponent sizeComponent = gameObject.componentMap[SizeComponent];
+    if (sizeComponent == null) {
+      return;
+    }
     Size size = sizeComponent.size;
     canvas.translate(-size.width * anchor.dx, -size.width * anchor.dx);
   }
@@ -196,7 +200,7 @@ class RenderComponent extends GameComponent with GameComponentRender {
 }
 
 /// 文本组件
-class TextComponent extends GameComponent {
+class TextComponent extends GameComponent with GameComponentRender {
   String text;
   double fontSize;
   Color color;
@@ -212,4 +216,28 @@ class TextComponent extends GameComponent {
     this.textAlign,
     this.textDirection,
   });
+
+  @override
+  void onBefore(GameObject gameObject, Canvas canvas, Paint paint) {
+    TextPainter textPainter;
+
+    textPainter = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: TextStyle(
+          color: color ?? const Color(0xff000000),
+          fontSize: fontSize,
+          fontFamily: fontFamily,
+        ),
+      ),
+      textAlign: textAlign ?? TextAlign.left,
+      textDirection: textDirection ?? TextDirection.ltr,
+    );
+    textPainter.layout();
+    textPainter.paint(canvas, Offset.zero);
+    if (gameObject.componentMap[SizeComponent] == null) {
+      gameObject.componentMap[SizeComponent] =
+          SizeComponent(size: textPainter.size);
+    }
+  }
 }
