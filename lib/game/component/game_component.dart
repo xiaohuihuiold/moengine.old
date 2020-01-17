@@ -40,7 +40,7 @@ class PositionComponent extends GameComponent with GameComponentRender {
   Size scale;
 
   PositionComponent({
-    this.position,
+    this.position = const Offset(0.0, 0.0),
     this.radians = 0.0,
     this.scale = const Size(1.0, 1.0),
   });
@@ -66,7 +66,9 @@ class PositionComponent extends GameComponent with GameComponentRender {
 class AnchorComponent extends GameComponent with GameComponentRender {
   Offset anchor;
 
-  AnchorComponent({this.anchor});
+  AnchorComponent({
+    this.anchor = const Offset(0.0, 0.0),
+  });
 
   @override
   void onBefore(
@@ -95,7 +97,10 @@ class ClipComponent extends GameComponent with GameComponentRender {
   ClipShape clipShape;
   Radius radius;
 
-  ClipComponent({this.clipShape, this.radius});
+  ClipComponent({
+    this.clipShape = ClipShape.rect,
+    this.radius,
+  });
 
   @override
   void onBefore(
@@ -124,27 +129,14 @@ class ClipComponent extends GameComponent with GameComponentRender {
 class TransformComponent extends GameComponent with GameComponentRender {
   Float64List transform;
 
-  TransformComponent({this.transform});
+  TransformComponent({
+    this.transform,
+  });
 
   @override
   void onBefore(
       GameObject gameObject, Canvas canvas, Paint paint, double scaleFactory) {
     canvas.transform(transform);
-  }
-}
-
-/// 自定义绘制组件
-///
-/// 简单的绘制特殊形状的组件
-class RenderComponent extends GameComponent with GameComponentRender {
-  Function(GameObject gameObject, Canvas canvas, Paint paint) customRender;
-
-  RenderComponent({this.customRender});
-
-  @override
-  void onBefore(
-      GameObject gameObject, Canvas canvas, Paint paint, double scaleFactory) {
-    customRender(gameObject, canvas, paint);
   }
 }
 
@@ -156,7 +148,10 @@ class SpriteComponent extends GameComponent
   Image image;
   Rect src;
 
-  SpriteComponent({this.image, this.src});
+  SpriteComponent({
+    this.image,
+    this.src,
+  });
 
   @override
   void onMeasure(
@@ -212,7 +207,7 @@ class TextComponent extends GameComponent
   TextComponent({
     @required this.text,
     this.fontSize,
-    this.color,
+    this.color = const Color(0xff000000),
     this.fontFamily,
     this.textAlign,
     this.textDirection,
@@ -223,7 +218,7 @@ class TextComponent extends GameComponent
       text: TextSpan(
         text: text,
         style: TextStyle(
-          color: color ?? const Color(0xff000000),
+          color: color,
           fontSize: fontSize,
           fontFamily: fontFamily,
         ),
@@ -255,6 +250,23 @@ class TextComponent extends GameComponent
   }
 }
 
+/// 自定义绘制组件
+///
+/// 简单的绘制特殊形状的组件
+class RenderComponent extends GameComponent with GameComponentRender {
+  Function(GameObject gameObject, Canvas canvas, Paint paint) customRender;
+
+  RenderComponent({
+    this.customRender,
+  });
+
+  @override
+  void onBefore(
+      GameObject gameObject, Canvas canvas, Paint paint, double scaleFactory) {
+    customRender(gameObject, canvas, paint);
+  }
+}
+
 /// 大小组件
 ///
 /// 定义的绘制区域
@@ -262,7 +274,10 @@ class SizeComponent extends GameComponent with GameComponentData {
   Size size;
   bool immutable;
 
-  SizeComponent({this.size, this.immutable = false});
+  SizeComponent({
+    this.size = Size.zero,
+    this.immutable = false,
+  });
 }
 
 /// 画笔组件
@@ -271,5 +286,7 @@ class SizeComponent extends GameComponent with GameComponentData {
 class PaintComponent extends GameComponent with GameComponentData {
   Paint paint;
 
-  PaintComponent({this.paint});
+  PaintComponent({
+    this.paint,
+  });
 }
