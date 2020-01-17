@@ -183,7 +183,7 @@ class _RenderCanvas extends RenderBox
         return;
       }
       canvas.save();
-      PaintComponent paintComponent = gameObject.componentMap[PaintComponent];
+      PaintComponent paintComponent = gameObject.getComponent<PaintComponent>();
       Paint drawPaint = paintComponent?.paint ?? _gameObjectPaint;
       // 测量
       Iterable<GameComponentMeasure> measures =
@@ -196,6 +196,11 @@ class _RenderCanvas extends RenderBox
           _rendererModule?.scaleFactory,
         );
       });
+
+      // 测量之后也没有大小的话就不进行绘制
+      if (gameObject.getComponent<SizeComponent>() == null) {
+        return;
+      }
 
       // 第一次绘制
       Iterable<GameComponentRender> renders =

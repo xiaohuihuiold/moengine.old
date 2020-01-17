@@ -161,6 +161,9 @@ class SpriteComponent extends GameComponent
   @override
   void onMeasure(
       GameObject gameObject, Canvas canvas, Paint paint, double scaleFactory) {
+    if (image == null) {
+      return;
+    }
     Size size = Size(src?.width ?? (image.width.toDouble() / scaleFactory),
         src?.height ?? (image.height.toDouble() / scaleFactory));
     SizeComponent sizeComponent = gameObject.getComponent<SizeComponent>();
@@ -174,6 +177,9 @@ class SpriteComponent extends GameComponent
   @override
   void onBefore(
       GameObject gameObject, Canvas canvas, Paint paint, double scaleFactory) {
+    if (image == null) {
+      return;
+    }
     SizeComponent sizeComponent = gameObject.getComponent<SizeComponent>();
     Size size = sizeComponent.size;
     Rect dst = Rect.fromLTWH(0.0, 0.0, size.width, size.height);
