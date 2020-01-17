@@ -178,12 +178,29 @@ class _RenderCanvas extends RenderBox
 
     // 坐标对齐游戏视图坐标
     canvas.translate(offset.dx, offset.dy);
+    // 渲染游戏对象
     gameObjects.forEach((GameObject gameObject) {
       if (gameObject == null) {
         return;
       }
-      Map<Type, GameComponent> componentMap = gameObject.componentMap;
-      List<CustomComponent> customComponents = gameObject.customComponents;
+      canvas.save();
+      PaintComponent paintComponent = gameObject.componentMap[PaintComponent];
+      Paint drawPaint = paintComponent?.paint ?? _gameObjectPaint;
+      gameObject.components.forEach((GameComponent gameComponent) {
+        if (gameComponent is GameComponentRender) {
+          (gameComponent as GameComponentRender)
+              ?.onBefore(gameObject, canvas, drawPaint);
+        }
+      });
+      // 渲染之后
+      gameObject.components.forEach((GameComponent gameComponent) {
+        if (gameComponent is GameComponentRender) {
+          (gameComponent as GameComponentRender)
+              ?.onAfter(gameObject, canvas, drawPaint);
+        }
+      });
+      canvas.restore();
+      /*  Map<Type, GameComponent> componentMap = gameObject.componentMap;
       if (componentMap == null || componentMap.isEmpty) {
         return;
       }
@@ -340,14 +357,7 @@ class _RenderCanvas extends RenderBox
       canvasComponent?.customRender(gameObject, canvas, drawPaint);
       canvas.translate(-position.dx, -position.dy);
 
-      // 自定义组件渲染
-      canvas.translate(position.dx, position.dy);
-      customComponents.forEach((CustomComponent customComponent) {
-        customComponent.render(gameObject, canvas, drawPaint);
-      });
-      canvas.translate(-position.dx, -position.dy);
-
-      canvas.restore();
+      canvas.restore();*/
     });
 
     canvas.translate(-offset.dx, -offset.dy);

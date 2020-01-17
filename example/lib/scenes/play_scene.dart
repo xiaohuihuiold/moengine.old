@@ -19,16 +19,16 @@ class PlayScene extends GameScene with PanDetector {
     print('PlayScene.onAttach');
     for (int i = 0; i < 8; i++) {
       addGameObject(createObject([
-        ClipComponent(
-          clipShape: ClipShape.roundRect,
-          radius: const Radius.circular(8.0),
-        ),
         PositionComponent(
           position: Offset(size.width / 2.0, size.height / 2.0),
         ),
         SizeComponent(size: const Size(50.0, 50.0)),
         AnchorComponent(anchor: const Offset(0.5, 0.5)),
         Rotate2DComponent(radians: (i + 1.0) / 8.0 * pi),
+        ClipComponent(
+          clipShape: ClipShape.roundRect,
+          radius: const Radius.circular(8.0),
+        ),
         RenderComponent(
           customRender: (_, Canvas canvas, Paint paint) {
             canvas.drawPaint(Paint()..color = Colors.pink.withOpacity(0.1));
@@ -41,7 +41,7 @@ class PlayScene extends GameScene with PanDetector {
         ),
       ]));
     }
-    getModule<ResourceModule>()
+   /* getModule<ResourceModule>()
         .loadImage('assets/images/flutter.png', ResourceMode.assets)
         .then((_) {
       addGameObject(
@@ -55,7 +55,7 @@ class PlayScene extends GameScene with PanDetector {
           ],
         ),
       );
-    });
+    });*/
     _startAnimation();
   }
 

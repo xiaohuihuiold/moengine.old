@@ -4,7 +4,6 @@ import 'package:moengine/game/component/game_component.dart';
 /// 游戏对象
 ///
 /// 展示在画面上除ui之外的所有物体的基础类
-/// TODO: 游戏组件需要改为List
 class GameObject {
   /// 游戏对象所含组件
   Map<Type, GameComponent> _componentMap = Map();
@@ -14,25 +13,17 @@ class GameObject {
   set componentMap(Map<Type, GameComponent> value) =>
       _componentMap = value ?? Map();
 
-  /// 游戏自定义组件
-  List<CustomComponent> _customComponents = List();
+  /// 游戏组件
+  List<GameComponent> _components = List();
 
-  List<CustomComponent> get customComponents => _customComponents;
+  List<GameComponent> get components => _components;
 
-  set customComponents(List<CustomComponent> value) =>
-      _customComponents = value ?? List();
-
-  /// 获取所有组件
-  Iterable<GameComponent> get components => componentMap.values;
+  set components(List<GameComponent> value) => _components = value ?? List();
 
   GameObject([List<GameComponent> components]) {
     // 检查重复组件
-    // 跳过自定义组件
     Map<Type, int> componentCount = Map();
     components?.forEach((GameComponent component) {
-      if (component == null || component is CustomComponent) {
-        return;
-      }
       componentCount[component.runtimeType] ??= 0;
       componentCount[component.runtimeType]++;
     });
@@ -45,18 +36,13 @@ class GameObject {
       throw ElementRepeatException();
     }
 
+    // 添加组件到对象
     components?.forEach((GameComponent component) {
       if (component == null) {
         return;
       }
-      // 自定义组件放入自定义组件列表
-      if (component is CustomComponent &&
-          !customComponents.contains(component)) {
-        component.gameObject = this;
-        customComponents.add(component);
-        return;
-      }
       component.gameObject = this;
+      this.components.add(component);
       componentMap[component.runtimeType] = component;
     });
   }
@@ -66,39 +52,21 @@ class GameObject {
     if (component == null) {
       return false;
     }
-    // 自定义组件放入自定义组件列表
-    if (component is CustomComponent) {
-      bool hasComponent = customComponents.contains(component);
-      assert(!hasComponent, 'Need to be removed first');
-      if (!(!hasComponent)) {
-        throw ElementRepeatException();
-      }
-      customComponents.add(component);
-      return true;
-    }
     // 当已经有同类型的组件时需要先移除
     assert(componentMap[component.runtimeType] == null,
         'Need to be removed first');
     if (!(componentMap[component.runtimeType] == null)) {
       return false;
     }
-    componentMap[component.runtimeType] = component;
     component.gameObject = this;
+    components.add(component);
+    componentMap[component.runtimeType] = component;
     return true;
   }
 
   /// 移除组件
-  bool removeComponent(dynamic typeOrComponent) {
+  bool removeComponent(Type typeOrComponent) {
     if (typeOrComponent == null) {
-      return false;
-    }
-    // 是自定义组件时移除自定义组件
-    if (typeOrComponent is CustomComponent) {
-      customComponents.remove(typeOrComponent);
-      return true;
-    }
-    // 不是type时不做操作
-    if (typeOrComponent is! Type) {
       return false;
     }
     GameComponent component = componentMap[typeOrComponent];
@@ -106,29 +74,26 @@ class GameObject {
       return true;
     }
     component.gameObject = null;
-    componentMap.remove(typeOrComponent);
+    components.remove(componentMap.remove(typeOrComponent));
     return true;
   }
 
   /// 根据下标移除组件
   bool removeComponentAt(int index) {
-    if (index < 0 || index > customComponents.length - 1) {
+    if (index < 0 || index > components.length - 1) {
       return false;
     }
-    customComponents.removeAt(index);
+    componentMap.remove(components.removeAt(index)?.runtimeType);
     return true;
   }
 
   /// 移除所有组件
   void removeAllComponent() {
-    componentMap.forEach((_, GameComponent component) {
+    components.forEach((GameComponent component) {
       component?.gameObject = null;
     });
+    components.clear();
     componentMap.clear();
-    customComponents.forEach((GameComponent component) {
-      component?.gameObject = null;
-    });
-    customComponents.clear();
   }
 
   /// 获取组件
@@ -137,10 +102,10 @@ class GameObject {
   }
 
   /// 根据下标获取组件
-  T getComponentAt<T extends CustomComponent>(int index) {
-    if (index < 0 || index > customComponents.length - 1) {
+  T getComponentAt<T extends GameComponent>(int index) {
+    if (index < 0 || index > components.length - 1) {
       return null;
     }
-    return customComponents[index];
+    return components[index];
   }
 }
