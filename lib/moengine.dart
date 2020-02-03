@@ -1,5 +1,6 @@
 library moengine;
 
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:moengine/engine/exception/engine_exception.dart';
 import 'package:moengine/engine/module/audio_module.dart';
@@ -12,14 +13,33 @@ import 'package:moengine/game/scene/game_scene.dart';
 /// Moengine引擎
 class Moengine {
   /// 模块管理器
-  ModuleManager moduleManager;
+  ModuleManager _moduleManager;
+
+  ModuleManager get moduleManager => _moduleManager;
+
+  /// 屏幕方向
+  List<DeviceOrientation> _orientations;
+
+  List<DeviceOrientation> get orientations => _orientations;
+
+  /// 系统ui
+  List<SystemUiOverlay> _overlays;
+
+  List<SystemUiOverlay> get overlays => _overlays;
 
   Moengine({
     List<EngineModule> modules,
+    List<DeviceOrientation> orientations,
+    List<SystemUiOverlay> overlays,
   }) {
+    _orientations = orientations;
+    _overlays = overlays;
     // 根据现有模块实例化管理器并执行附加操作
-    moduleManager = ModuleManager._internal(modules);
+    _moduleManager = ModuleManager._internal(modules);
     moduleManager._onAttach(this);
+
+    setPreferredOrientations(orientations);
+    setEnabledSystemUIOverlays(overlays);
   }
 
   /// 构建游戏视图
@@ -33,23 +53,45 @@ class Moengine {
   }
 
   /// 绘制区域大小变化
-  void _onResize(Size size) {
+  void onResize(Size size) {
     moduleManager._onResize(size);
   }
 
   /// 游戏进入后台
-  void _onPause() {
+  void onPause() {
     moduleManager._onPause();
   }
 
   /// 游戏从后台恢复
-  void _onResume() {
+  void onResume() {
     moduleManager._onResume();
+    setPreferredOrientations(orientations);
+    setEnabledSystemUIOverlays(overlays);
   }
 
   /// 当引擎被销毁时调用
   void destroy() {
     moduleManager._onDestroy();
+  }
+
+  /// 设置屏幕方向
+  Future<Null> setPreferredOrientations(
+      List<DeviceOrientation> orientations) async {
+    if (orientations == null) {
+      return;
+    }
+    _orientations = orientations;
+    await SystemChrome.setPreferredOrientations(orientations);
+  }
+
+  /// 系统ui
+  Future<Null> setEnabledSystemUIOverlays(
+      List<SystemUiOverlay> overlays) async {
+    if (overlays == null) {
+      return;
+    }
+    _overlays = overlays;
+    await SystemChrome.setEnabledSystemUIOverlays(overlays);
   }
 }
 
@@ -287,13 +329,13 @@ class _MoengineViewState extends State<MoengineView>
     // 绑定app生命周期
     switch (state) {
       case AppLifecycleState.resumed:
-        moengine?._onResume();
+        moengine?.onResume();
         break;
       case AppLifecycleState.inactive:
-        moengine?._onPause();
+        moengine?.onPause();
         break;
       case AppLifecycleState.paused:
-        moengine?._onPause();
+        moengine?.onPause();
         break;
       default:
         break;
@@ -310,7 +352,7 @@ class _MoengineViewState extends State<MoengineView>
     Size renderSize = renderBox.size;
     if (_widgetSize != renderSize) {
       _widgetSize = renderSize;
-      moengine?._onResize(_widgetSize);
+      moengine?.onResize(_widgetSize);
     }
   }
 

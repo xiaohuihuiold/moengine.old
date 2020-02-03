@@ -1,5 +1,6 @@
 import 'package:example/scenes/start_scene.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:moengine/engine/module/scene_module.dart';
 import 'package:moengine/moengine.dart';
 
@@ -24,7 +25,14 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final Moengine _moengine = Moengine();
+  final Moengine _moengine = Moengine(
+    orientations: [
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight
+    ],
+    overlays:[
+    ],
+  );
 
   @override
   void initState() {
