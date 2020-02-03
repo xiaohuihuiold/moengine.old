@@ -63,6 +63,11 @@ abstract class GameScene<T> {
     gameObjects = List();
   }
 
+  /// 移除游戏场景
+  void removeScene<T extends Object>([T result]) {
+    sceneModule?.removeScene(this, result);
+  }
+
   /// 创建游戏对象
   @protected
   GameObject createObject([List<GameComponent> components]) {

@@ -95,6 +95,7 @@ class SceneModule extends EngineModule {
     scene?.onDestroy();
     renderScene?.onResume();
     rendererModule?.updateState();
+    // 返回给调用场景的数据
     scene?.removeCompleter?.complete(result);
     return true;
   }
@@ -111,6 +112,7 @@ class SceneModule extends EngineModule {
     _scenes.remove(scene);
     scene.onDestroy();
     rendererModule?.updateState();
+    // 返回给调用场景的数据
     scene?.removeCompleter?.complete(result);
     return true;
   }
@@ -119,6 +121,7 @@ class SceneModule extends EngineModule {
   void clearScene() {
     _scenes.forEach((GameScene scene) {
       scene?.onDestroy();
+      scene?.removeCompleter?.completeError(null);
     });
     _scenes.clear();
     rendererModule?.updateState();
