@@ -148,7 +148,7 @@ abstract class GameScene {
   void onResize(Size size) {}
 
   /// 游戏画面的更新
-  void onUpdate(int deltaTime);
+  void onUpdate(int deltaTime) {}
 
   /// 场景被暂停/移入后台
   ///
