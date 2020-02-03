@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/gestures.dart';
 import 'package:meta/meta.dart';
 import 'package:flutter/widgets.dart';
@@ -15,7 +17,7 @@ import 'package:moengine/moengine.dart';
 ///
 /// 根据需求提供更加合适的画面
 /// 以及渲染指定的游戏对象
-abstract class GameScene {
+abstract class GameScene<T> {
   /// 场景名
   String name;
 
@@ -52,6 +54,10 @@ abstract class GameScene {
   /// 音频模块
   @protected
   AudioModule get audioModule => getModule<AudioModule>();
+
+  /// 被移除的future
+  Future<T> get removed => removeCompleter.future;
+  final Completer<T> removeCompleter = Completer<T>();
 
   GameScene() {
     gameObjects = List();

@@ -49,9 +49,9 @@ class SceneModule extends EngineModule {
   /// 加载新的场景
   ///
   /// 如果场景对象已经存在的话,则提升到顶部
-  bool loadScene(GameScene scene, {bool remove = false}) {
+  Future<T> loadScene<T>(GameScene scene, {bool remove = false}) async {
     if (scene == null) {
-      return false;
+      return null;
     }
     GameScene topScene;
     // 暂停顶层场景
@@ -73,7 +73,7 @@ class SceneModule extends EngineModule {
       if (remove) {
         removeScene(topScene);
       }
-      return true;
+      return scene.removed;
     }
     // 如果是新的场景则直接添加到最后
     _scenes.add(scene);
@@ -81,12 +81,13 @@ class SceneModule extends EngineModule {
     rendererModule?.updateState();
     if (remove) {
       removeScene(topScene);
+      topScene.removeCompleter.complete();
     }
-    return true;
+    return scene.removed;
   }
 
   /// 移除顶层场景
-  bool removeTopScene() {
+  bool removeTopScene<T extends Object>([T result]) {
     if (_scenes == null || _scenes.isEmpty) {
       return false;
     }
@@ -95,11 +96,12 @@ class SceneModule extends EngineModule {
     scene?.onDestroy();
     renderScene?.onResume();
     rendererModule?.updateState();
+    scene?.removeCompleter?.complete(result);
     return true;
   }
 
   /// 根据对象移除场景
-  bool removeScene(GameScene scene) {
+  bool removeScene<T extends Object>(GameScene scene, [T result]) {
     if (scene == null) {
       return false;
     }
@@ -110,6 +112,7 @@ class SceneModule extends EngineModule {
     _scenes.remove(scene);
     scene.onDestroy();
     rendererModule?.updateState();
+    scene?.removeCompleter?.complete(result);
     return true;
   }
 
