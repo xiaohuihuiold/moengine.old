@@ -107,7 +107,7 @@ class SceneModule extends EngineModule {
     }
     // 顶部的场景则调用移除顶部场景的方法
     if (_scenes.indexOf(scene) == sceneLength - 1) {
-      return removeTopScene();
+      return removeTopScene<T>(result);
     }
     _scenes.remove(scene);
     scene.onDestroy();
