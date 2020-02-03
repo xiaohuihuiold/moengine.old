@@ -49,13 +49,15 @@ class SceneModule extends EngineModule {
   /// 加载新的场景
   ///
   /// 如果场景对象已经存在的话,则提升到顶部
-  bool loadScene(GameScene scene) {
+  bool loadScene(GameScene scene, {bool remove = false}) {
     if (scene == null) {
       return false;
     }
+    GameScene topScene;
     // 暂停顶层场景
     if (sceneLength > 0) {
-      _scenes[sceneLength - 1]?.onPause();
+      topScene = _scenes[sceneLength - 1];
+      topScene?.onPause();
     }
     // 如果场景已经存在的话
     // 提升到顶部
@@ -68,12 +70,18 @@ class SceneModule extends EngineModule {
       // 恢复场景
       tempScene?.onResume();
       rendererModule?.updateState();
+      if (remove) {
+        removeScene(topScene);
+      }
       return true;
     }
     // 如果是新的场景则直接添加到最后
     _scenes.add(scene);
     scene.onAttach(moengine);
     rendererModule?.updateState();
+    if (remove) {
+      removeScene(topScene);
+    }
     return true;
   }
 
