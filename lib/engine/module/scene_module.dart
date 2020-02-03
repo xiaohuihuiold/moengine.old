@@ -81,7 +81,6 @@ class SceneModule extends EngineModule {
     rendererModule?.updateState();
     if (remove) {
       removeScene(topScene);
-      topScene.removeCompleter.complete();
     }
     return scene.removed;
   }
