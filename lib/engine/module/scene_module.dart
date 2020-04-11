@@ -121,7 +121,6 @@ class SceneModule extends EngineModule {
   void clearScene() {
     _scenes.forEach((GameScene scene) {
       scene?.onDestroy();
-      scene?.removeCompleter?.completeError(null);
     });
     _scenes.clear();
     rendererModule?.updateState();
