@@ -18,6 +18,7 @@ install:
   - export PATH=$HOME/flutter/bin:$PATH
   - flutter doctor
 script:
+  - cd packages/moengine
   - flutter packages get
   - flutter analyze --no-pub --no-current-package lib/ test/
   - flutter test --no-pub test/
