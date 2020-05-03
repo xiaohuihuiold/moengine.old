@@ -1,4 +1,4 @@
-library moenginegal;
+library moengine_gal;
 
 /// A Calculator.
 class Calculator {
