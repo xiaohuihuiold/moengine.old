@@ -2,10 +2,10 @@ name: moengine
 description: 2D game engine based on Flutter
 version: 1.0.0
 author:
-homepage: https://github.com/moengine-project/moengine
+homepage: https://github.com/moengine-project/moengine/tree/master/packages/moengine
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
   flutter:
