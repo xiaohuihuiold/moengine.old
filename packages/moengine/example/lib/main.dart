@@ -1,7 +1,6 @@
 import 'package:example/scenes/start_scene.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:moengine/engine/module/scene_module.dart';
 import 'package:moengine/moengine.dart';
 
 void main() => runApp(MyApp());

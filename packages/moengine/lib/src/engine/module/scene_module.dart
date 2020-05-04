@@ -1,10 +1,10 @@
 import 'dart:ui';
 
 import 'package:meta/meta.dart';
-import 'package:moengine/engine/exception/engine_exception.dart';
-import 'package:moengine/engine/module/engine_module.dart';
-import 'package:moengine/engine/module/renderer_module.dart';
-import 'package:moengine/game/scene/game_scene.dart';
+import 'package:moengine/src/engine/exception/engine_exception.dart';
+import 'package:moengine/src/engine/module/engine_module.dart';
+import 'package:moengine/src/engine/module/renderer_module.dart';
+import 'package:moengine/src/game/scene/game_scene.dart';
 
 /// 场景模块
 ///

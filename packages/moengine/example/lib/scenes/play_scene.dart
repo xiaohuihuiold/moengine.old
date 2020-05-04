@@ -4,10 +4,6 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/gestures/events.dart';
-import 'package:moengine/engine/module/resource_module.dart';
-import 'package:moengine/game/component/game_component.dart';
-import 'package:moengine/game/game_object.dart';
-import 'package:moengine/game/scene/game_scene.dart';
 import 'package:moengine/moengine.dart';
 
 class PlayScene extends GameScene with PanDetector {

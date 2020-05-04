@@ -2,7 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
 import 'package:flutter/services.dart';
-import 'package:moengine/engine/module/engine_module.dart';
+import 'package:moengine/src/engine/module/engine_module.dart';
 
 /// 资源管理基础类
 ///

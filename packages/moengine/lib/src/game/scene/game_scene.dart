@@ -3,15 +3,16 @@ import 'dart:async';
 import 'package:flutter/gestures.dart';
 import 'package:meta/meta.dart';
 import 'package:flutter/widgets.dart';
-import 'package:moengine/engine/exception/engine_exception.dart';
-import 'package:moengine/engine/module/audio_module.dart';
-import 'package:moengine/engine/module/engine_module.dart';
-import 'package:moengine/engine/module/renderer_module.dart';
-import 'package:moengine/engine/module/resource_module.dart';
-import 'package:moengine/engine/module/scene_module.dart';
-import 'package:moengine/game/component/game_component.dart';
-import 'package:moengine/game/game_object.dart';
+import 'package:moengine/src/engine/exception/engine_exception.dart';
+import 'package:moengine/src/engine/module/audio_module.dart';
+import 'package:moengine/src/engine/module/engine_module.dart';
+import 'package:moengine/src/engine/module/renderer_module.dart';
+import 'package:moengine/src/engine/module/resource_module.dart';
+import 'package:moengine/src/engine/module/scene_module.dart';
+import 'package:moengine/src/game/component/game_component.dart';
+import 'package:moengine/src/game/game_object.dart';
 import 'package:moengine/moengine.dart';
+import 'package:moengine/src/moengine.dart';
 
 /// 基础的游戏场景
 ///

@@ -2,10 +2,10 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
-import 'package:moengine/engine/module/engine_module.dart';
-import 'package:moengine/engine/module/scene_module.dart';
-import 'package:moengine/game/component/game_component.dart';
-import 'package:moengine/game/game_object.dart';
+import 'package:moengine/src/engine/module/engine_module.dart';
+import 'package:moengine/src/engine/module/scene_module.dart';
+import 'package:moengine/src/game/component/game_component.dart';
+import 'package:moengine/src/game/game_object.dart';
 
 /// 渲染器模块基础类
 ///

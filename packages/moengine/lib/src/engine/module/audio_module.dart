@@ -1,4 +1,4 @@
-import 'package:moengine/engine/module/engine_module.dart';
+import 'package:moengine/src/engine/module/engine_module.dart';
 
 /// 音频模块基础类
 ///

@@ -1,5 +1,5 @@
-import 'package:moengine/engine/exception/engine_exception.dart';
-import 'package:moengine/game/component/game_component.dart';
+import 'package:moengine/src/engine/exception/engine_exception.dart';
+import 'package:moengine/src/game/component/game_component.dart';
 
 /// 游戏对象
 ///

@@ -1,6 +1,5 @@
 import 'package:example/scenes/play_scene.dart';
 import 'package:flutter/material.dart';
-import 'package:moengine/game/scene/game_scene.dart';
 import 'package:moengine/moengine.dart';
 
 class StartScene extends GameScene {

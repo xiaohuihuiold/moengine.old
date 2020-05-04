@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:meta/meta.dart';
-import 'package:moengine/moengine.dart';
+import 'package:moengine/src/moengine.dart';
 
 /// 引擎模块基础类
 ///

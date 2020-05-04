@@ -4,7 +4,7 @@ import 'package:flutter/rendering.dart';
 import 'package:meta/meta.dart';
 import 'dart:typed_data';
 
-import 'package:moengine/game/game_object.dart';
+import 'package:moengine/src/game/game_object.dart';
 
 /// 数据组件
 mixin GameComponentData {}
