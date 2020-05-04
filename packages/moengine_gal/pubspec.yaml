@@ -12,6 +12,8 @@ dependencies:
     sdk: flutter
   moengine:
     path: ../moengine
+  moengine_moex:
+    path: ../moengine_moex
 
 dev_dependencies:
   flutter_test:
