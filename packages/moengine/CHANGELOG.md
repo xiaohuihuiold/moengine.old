@@ -1,3 +1,3 @@
-## [1.0.0] - 2019.12.27
+## [0.0.1] - TODO: Add release date.
 
-* Create project
+* TODO: Describe initial release.
