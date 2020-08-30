@@ -7,4 +7,4 @@ version:
   revision: 1d7838a8f05006ac92661294715ee5617af954af
   channel: master
 
-project_type: package
+project_type: app

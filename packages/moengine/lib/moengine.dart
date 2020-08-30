@@ -1,3 +1,3 @@
 library moengine;
 
-export 'package:moengine/src/moengine.dart';
+export 'src/moengine.dart';
