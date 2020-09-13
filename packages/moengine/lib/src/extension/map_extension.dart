@@ -1,6 +1,6 @@
 import 'dart:collection';
 
-/// TODO: desc
+/// Map基础信息
 abstract class MapInfo<K, V> {
   int get length;
 
@@ -8,35 +8,41 @@ abstract class MapInfo<K, V> {
 
   Iterable<V> get values;
 
+  dynamic has(List<K> keys);
+
   bool containsKey(K key);
 
   bool containsValue(V value);
 }
 
-/// TODO: desc
+/// 根据值Type来存放值
 class TypeMap implements MapInfo<Type, dynamic> {
   final Map<Type, dynamic> _map = LinkedHashMap();
 
-  ValueType get<ValueType>() {
-    dynamic value = _map[ValueType];
+  ValueType get<ValueType>([Type type]) {
+    dynamic value = _map[type ?? ValueType];
     if (value == null || value is! ValueType) {
       return null;
     }
     return value as ValueType;
   }
 
-  void put(dynamic value) {
-    if (value == null) {
+  void put(dynamic value, [Type type]) {
+    if (value == null && type == null) {
       return;
     }
-    Type type = value.runtimeType;
+    type ??= value.runtimeType;
     _map[type] = value;
   }
 
-  ValueType remove<ValueType>() {
-    ValueType value = get<ValueType>();
-    _map.remove(ValueType);
+  ValueType remove<ValueType>([Type type]) {
+    ValueType value = get<ValueType>(type);
+    _map.remove(type ?? ValueType);
     return value;
+  }
+
+  void clear() {
+    _map.clear();
   }
 
   @override
@@ -49,49 +55,31 @@ class TypeMap implements MapInfo<Type, dynamic> {
   Iterable<dynamic> get values => _map.values;
 
   @override
+  TypeMap has(List<Type> keys, {bool hasNull = true}) {
+    TypeMap typeMap = TypeMap();
+    for (Type type in keys) {
+      if (hasNull) {
+        if (!containsKey(type)) {
+          return null;
+        }
+      } else {
+        if (get(type) == null) {
+          return null;
+        }
+      }
+      typeMap.put(get(type), type);
+    }
+    return typeMap;
+  }
+
+  @override
   bool containsKey(Type key) => _map.containsKey(key);
 
   @override
   bool containsValue(dynamic value) => _map.containsValue(value);
-}
 
-/// TODO: desc
-class NameMap implements MapInfo<String, dynamic> {
-  final Map<String, dynamic> _map = LinkedHashMap();
-
-  ValueType get<ValueType>(String key) {
-    dynamic value = _map[key];
-    if (value == null || value is! ValueType) {
-      return null;
-    }
-    return value as ValueType;
+  @override
+  String toString() {
+    return _map.toString();
   }
-
-  void put(String key, dynamic value) {
-    if (key == null) {
-      return;
-    }
-    _map[key] = value;
-  }
-
-  ValueType remove<ValueType>(String key) {
-    ValueType value = get<ValueType>(key);
-    _map.remove(key);
-    return value;
-  }
-
-  @override
-  int get length => _map.length;
-
-  @override
-  Iterable<String> get keys => _map.keys;
-
-  @override
-  Iterable<dynamic> get values => _map.values;
-
-  @override
-  bool containsKey(String key) => _map.containsKey(key);
-
-  @override
-  bool containsValue(dynamic value) => _map.containsValue(value);
 }
